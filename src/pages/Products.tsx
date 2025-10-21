@@ -82,6 +82,99 @@ const allProducts = [
 const Products = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState("relevance");
+
+  // Filter products
+  const filteredProducts = allProducts.filter((product) => {
+    // Category filter
+    if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
+      return false;
+    }
+
+    // Price filter
+    const price = product.price;
+    if (price < priceRange[0] || price > priceRange[1]) {
+      return false;
+    }
+
+    // Discount filter
+    if (selectedDiscounts.length > 0) {
+      const hasDiscount = product.discount || 0;
+      const matchesDiscount = selectedDiscounts.some((discount) => {
+        const threshold = parseInt(discount);
+        return hasDiscount >= threshold;
+      });
+      if (!matchesDiscount) return false;
+    }
+
+    // Rating filter
+    if (selectedRatings.length > 0) {
+      const matchesRating = selectedRatings.some((rating) => {
+        const threshold = parseInt(rating);
+        return (product.rating || 0) >= threshold;
+      });
+      if (!matchesRating) return false;
+    }
+
+    return true;
+  });
+
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return a.price - b.price;
+      case "price-high":
+        return b.price - a.price;
+      case "newest":
+        return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+      case "discount":
+        return (b.discount || 0) - (a.discount || 0);
+      case "rating":
+        return (b.rating || 0) - (a.rating || 0);
+      default:
+        return 0;
+    }
+  });
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setSelectedSizes([]);
+    setSelectedDiscounts([]);
+    setSelectedRatings([]);
+    setPriceRange([0, 5000]);
+    setSortBy("relevance");
+  };
+
+  // Toggle filter selections
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+    );
+  };
+
+  const toggleSize = (size: string) => {
+    setSelectedSizes((prev) =>
+      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
+    );
+  };
+
+  const toggleDiscount = (discount: string) => {
+    setSelectedDiscounts((prev) =>
+      prev.includes(discount) ? prev.filter((d) => d !== discount) : [...prev, discount]
+    );
+  };
+
+  const toggleRating = (rating: string) => {
+    setSelectedRatings((prev) =>
+      prev.includes(rating) ? prev.filter((r) => r !== rating) : [...prev, rating]
+    );
+  };
 
   return (
     <div className="min-h-screen">
@@ -90,10 +183,10 @@ const Products = () => {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">All Products</h1>
-            <p className="text-muted-foreground">Showing {allProducts.length} products</p>
+            <p className="text-muted-foreground">Showing {sortedProducts.length} of {allProducts.length} products</p>
           </div>
           <div className="flex items-center gap-4">
-            <Select defaultValue="relevance">
+            <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -130,7 +223,7 @@ const Products = () => {
                   <SlidersHorizontal className="h-4 w-4" />
                   Filters
                 </h3>
-                <Button variant="link" size="sm" className="text-primary">
+                <Button variant="link" size="sm" className="text-primary" onClick={clearAllFilters}>
                   Clear All
                 </Button>
               </div>
@@ -139,10 +232,14 @@ const Products = () => {
               <div className="space-y-3">
                 <h4 className="font-medium">Category</h4>
                 <div className="space-y-2">
-                  {["All", "Shirts", "T-Shirts", "Jeans", "Hoodies", "Trousers"].map(
+                  {["Shirts", "T-Shirts", "Jeans", "Hoodies", "Trousers"].map(
                     (category) => (
                       <div key={category} className="flex items-center space-x-2">
-                        <Checkbox id={category} />
+                        <Checkbox 
+                          id={category} 
+                          checked={selectedCategories.includes(category)}
+                          onCheckedChange={() => toggleCategory(category)}
+                        />
                         <Label
                           htmlFor={category}
                           className="text-sm cursor-pointer"
@@ -178,9 +275,10 @@ const Products = () => {
                   {["S", "M", "L", "XL", "XXL"].map((size) => (
                     <Button
                       key={size}
-                      variant="outline"
+                      variant={selectedSizes.includes(size) ? "default" : "outline"}
                       size="sm"
                       className="h-10"
+                      onClick={() => toggleSize(size)}
                     >
                       {size}
                     </Button>
@@ -195,7 +293,11 @@ const Products = () => {
                   {["10% and above", "20% and above", "30% and above", "50% and above"].map(
                     (discount) => (
                       <div key={discount} className="flex items-center space-x-2">
-                        <Checkbox id={discount} />
+                        <Checkbox 
+                          id={discount}
+                          checked={selectedDiscounts.includes(discount)}
+                          onCheckedChange={() => toggleDiscount(discount)}
+                        />
                         <Label
                           htmlFor={discount}
                           className="text-sm cursor-pointer"
@@ -214,7 +316,11 @@ const Products = () => {
                 <div className="space-y-2">
                   {["4★ & above", "3★ & above", "2★ & above"].map((rating) => (
                     <div key={rating} className="flex items-center space-x-2">
-                      <Checkbox id={rating} />
+                      <Checkbox 
+                        id={rating}
+                        checked={selectedRatings.includes(rating)}
+                        onCheckedChange={() => toggleRating(rating)}
+                      />
                       <Label htmlFor={rating} className="text-sm cursor-pointer">
                         {rating}
                       </Label>
@@ -227,11 +333,18 @@ const Products = () => {
 
           {/* Products Grid */}
           <div className="flex-1">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {allProducts.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
-            </div>
+            {sortedProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {sortedProducts.map((product) => (
+                  <ProductCard key={product.id} {...product} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-xl text-muted-foreground mb-4">No products found</p>
+                <Button onClick={clearAllFilters}>Clear Filters</Button>
+              </div>
+            )}
 
             {/* Pagination */}
             <div className="mt-12 flex justify-center">
