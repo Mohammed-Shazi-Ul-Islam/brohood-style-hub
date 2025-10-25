@@ -63,10 +63,13 @@ export default {
         'gradient-gold': 'var(--gradient-gold)',
         'gradient-dark': 'var(--gradient-dark)',
         'gradient-hero': 'var(--gradient-hero)',
+        'gradient-premium': 'var(--gradient-premium)',
       },
       boxShadow: {
         'gold': 'var(--shadow-gold)',
+        'gold-lg': 'var(--shadow-gold-lg)',
         'card-hover': 'var(--shadow-elevated)',
+        'premium': 'var(--shadow-premium)',
       },
       transitionProperty: {
         'base': 'var(--transition-base)',
