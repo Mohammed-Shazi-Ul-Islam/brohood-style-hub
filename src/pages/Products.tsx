@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Filter, SlidersHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Filter, SlidersHorizontal, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import {
@@ -12,134 +13,65 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import productTshirt from "@/assets/product-tshirt-1.jpg";
-import productJeans from "@/assets/product-jeans-1.jpg";
-import productShirt from "@/assets/product-shirt-1.jpg";
-import productHoodie from "@/assets/product-hoodie-1.jpg";
-
-// Mock products - expanded
-const allProducts = [
-  {
-    id: "1",
-    name: "Premium Black T-Shirt",
-    image: productTshirt,
-    price: 999,
-    originalPrice: 1499,
-    discount: 33,
-    rating: 4.5,
-    category: "T-Shirts",
-    isNew: true,
-  },
-  {
-    id: "2",
-    name: "Classic Blue Denim Jeans",
-    image: productJeans,
-    price: 2499,
-    originalPrice: 3499,
-    discount: 29,
-    rating: 4.7,
-    category: "Jeans",
-  },
-  {
-    id: "3",
-    name: "Elegant White Casual Shirt",
-    image: productShirt,
-    price: 1799,
-    originalPrice: 2299,
-    discount: 22,
-    rating: 4.6,
-    category: "Shirts",
-    isNew: true,
-  },
-  {
-    id: "4",
-    name: "Modern Black Hoodie",
-    image: productHoodie,
-    price: 1999,
-    originalPrice: 2999,
-    discount: 33,
-    rating: 4.8,
-    category: "Hoodies",
-  },
-  {
-    id: "5",
-    name: "Classic Black T-Shirt",
-    image: productTshirt,
-    price: 899,
-    rating: 4.3,
-    category: "T-Shirts",
-  },
-  {
-    id: "6",
-    name: "Dark Blue Jeans",
-    image: productJeans,
-    price: 2199,
-    rating: 4.4,
-    category: "Jeans",
-  },
-];
+import { useProducts, useCategories } from "@/hooks/useProducts";
+import { ProductFilters } from "@/types/database";
 
 const Products = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 5000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
   const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState("relevance");
+  const [sortBy, setSortBy] = useState("created_at");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Filter products
-  const filteredProducts = allProducts.filter((product) => {
-    // Category filter
-    if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
-      return false;
+  // Build filters object
+  const filters: ProductFilters = {
+    price_min: priceRange[0],
+    price_max: priceRange[1],
+    search: searchParams.get('search') || undefined,
+  };
+
+  // Add category filter if selected
+  if (selectedCategories.length > 0) {
+    // Find category ID from slug
+    const categorySlug = selectedCategories[0];
+    const category = categories.find(c => c.slug === categorySlug);
+    if (category) {
+      filters.category_id = category.id;
     }
+  }
 
-    // Price filter
-    const price = product.price;
-    if (price < priceRange[0] || price > priceRange[1]) {
-      return false;
+  // Add category from URL params
+  const categoryFromUrl = searchParams.get('category');
+  if (categoryFromUrl && selectedCategories.length === 0) {
+    const category = categories.find(c => c.slug === categoryFromUrl);
+    if (category) {
+      filters.category_id = category.id;
     }
+  }
 
-    // Discount filter
-    if (selectedDiscounts.length > 0) {
-      const hasDiscount = product.discount || 0;
-      const matchesDiscount = selectedDiscounts.some((discount) => {
-        const threshold = parseInt(discount);
-        return hasDiscount >= threshold;
-      });
-      if (!matchesDiscount) return false;
-    }
-
-    // Rating filter
-    if (selectedRatings.length > 0) {
-      const matchesRating = selectedRatings.some((rating) => {
-        const threshold = parseInt(rating);
-        return (product.rating || 0) >= threshold;
-      });
-      if (!matchesRating) return false;
-    }
-
-    return true;
+  // Fetch data
+  const { products, loading, error, total } = useProducts({
+    filters,
+    pagination: { page: currentPage, limit: 12 },
+    sortBy
   });
 
-  // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "newest":
-        return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
-      case "discount":
-        return (b.discount || 0) - (a.discount || 0);
-      case "rating":
-        return (b.rating || 0) - (a.rating || 0);
-      default:
-        return 0;
+  const { categories, loading: categoriesLoading } = useCategories();
+
+  // Update selected categories when URL changes
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('category');
+    if (categoryFromUrl && !selectedCategories.includes(categoryFromUrl)) {
+      setSelectedCategories([categoryFromUrl]);
     }
-  });
+  }, [searchParams]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(total / 12);
 
   // Clear all filters
   const clearAllFilters = () => {
@@ -152,10 +84,11 @@ const Products = () => {
   };
 
   // Toggle filter selections
-  const toggleCategory = (category: string) => {
+  const toggleCategory = (categorySlug: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+      prev.includes(categorySlug) ? prev.filter((c) => c !== categorySlug) : [...prev, categorySlug]
     );
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const toggleSize = (size: string) => {
@@ -182,8 +115,10 @@ const Products = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">All Products</h1>
-            <p className="text-muted-foreground">Showing {sortedProducts.length} of {allProducts.length} products</p>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-black">All Products</h1>
+            <p className="text-gray-600">
+              {loading ? 'Loading...' : `Showing ${products.length} of ${total} products`}
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <Select value={sortBy} onValueChange={setSortBy}>
@@ -191,12 +126,11 @@ const Products = () => {
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="relevance">Relevance</SelectItem>
+                <SelectItem value="created_at">Newest First</SelectItem>
                 <SelectItem value="price-low">Price: Low to High</SelectItem>
                 <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="discount">Discount</SelectItem>
-                <SelectItem value="rating">Customer Rating</SelectItem>
+                <SelectItem value="name">Name A-Z</SelectItem>
+                <SelectItem value="featured">Featured</SelectItem>
               </SelectContent>
             </Select>
             <Button
@@ -217,44 +151,50 @@ const Products = () => {
               filtersOpen ? "block" : "hidden lg:block"
             }`}
           >
-            <div className="bg-card p-6 rounded-lg border border-border space-y-6">
+            <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold flex items-center gap-2">
+                <h3 className="font-semibold flex items-center gap-2 text-black">
                   <SlidersHorizontal className="h-4 w-4" />
                   Filters
                 </h3>
-                <Button variant="link" size="sm" className="text-primary" onClick={clearAllFilters}>
+                <Button variant="link" size="sm" className="text-black hover:text-gray-600" onClick={clearAllFilters}>
                   Clear All
                 </Button>
               </div>
 
               {/* Category Filter */}
               <div className="space-y-3">
-                <h4 className="font-medium">Category</h4>
+                <h4 className="font-medium text-black">Category</h4>
                 <div className="space-y-2">
-                  {["Shirts", "T-Shirts", "Jeans", "Hoodies", "Trousers"].map(
-                    (category) => (
-                      <div key={category} className="flex items-center space-x-2">
+                  {categoriesLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <div key={index} className="h-5 bg-gray-200 animate-pulse rounded" />
+                    ))
+                  ) : categories.length === 0 ? (
+                    <p className="text-sm text-gray-500">No categories available</p>
+                  ) : (
+                    categories.map((category) => (
+                      <div key={category.id} className="flex items-center space-x-2">
                         <Checkbox 
-                          id={category} 
-                          checked={selectedCategories.includes(category)}
-                          onCheckedChange={() => toggleCategory(category)}
+                          id={category.slug} 
+                          checked={selectedCategories.includes(category.slug)}
+                          onCheckedChange={() => toggleCategory(category.slug)}
                         />
                         <Label
-                          htmlFor={category}
-                          className="text-sm cursor-pointer"
+                          htmlFor={category.slug}
+                          className="text-sm cursor-pointer text-gray-700 hover:text-black"
                         >
-                          {category}
+                          {category.name}
                         </Label>
                       </div>
-                    )
+                    ))
                   )}
                 </div>
               </div>
 
               {/* Price Range */}
               <div className="space-y-3">
-                <h4 className="font-medium">Price Range</h4>
+                <h4 className="font-medium text-black">Price Range</h4>
                 <Slider
                   value={priceRange}
                   onValueChange={setPriceRange}
@@ -270,7 +210,7 @@ const Products = () => {
 
               {/* Size Filter */}
               <div className="space-y-3">
-                <h4 className="font-medium">Size</h4>
+                <h4 className="font-medium text-black">Size</h4>
                 <div className="grid grid-cols-4 gap-2">
                   {["S", "M", "L", "XL", "XXL"].map((size) => (
                     <Button
@@ -288,7 +228,7 @@ const Products = () => {
 
               {/* Discount Filter */}
               <div className="space-y-3">
-                <h4 className="font-medium">Discount</h4>
+                <h4 className="font-medium text-black">Discount</h4>
                 <div className="space-y-2">
                   {["10% and above", "20% and above", "30% and above", "50% and above"].map(
                     (discount) => (
@@ -312,7 +252,7 @@ const Products = () => {
 
               {/* Rating Filter */}
               <div className="space-y-3">
-                <h4 className="font-medium">Customer Rating</h4>
+                <h4 className="font-medium text-black">Customer Rating</h4>
                 <div className="space-y-2">
                   {["4★ & above", "3★ & above", "2★ & above"].map((rating) => (
                     <div key={rating} className="flex items-center space-x-2">
@@ -333,10 +273,28 @@ const Products = () => {
 
           {/* Products Grid */}
           <div className="flex-1">
-            {sortedProducts.length > 0 ? (
+            {loading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {sortedProducts.map((product) => (
-                  <ProductCard key={product.id} {...product} />
+                {Array.from({ length: 12 }).map((_, index) => (
+                  <div key={index} className="bg-card rounded-lg overflow-hidden border border-border">
+                    <div className="aspect-[3/4] bg-muted animate-pulse" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-3 bg-muted animate-pulse rounded" />
+                      <div className="h-4 bg-muted animate-pulse rounded" />
+                      <div className="h-5 bg-muted animate-pulse rounded w-20" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : error ? (
+              <div className="text-center py-16">
+                <p className="text-xl text-red-600 mb-4">Error: {error}</p>
+                <Button onClick={() => window.location.reload()}>Retry</Button>
+              </div>
+            ) : products.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             ) : (
@@ -347,26 +305,42 @@ const Products = () => {
             )}
 
             {/* Pagination */}
-            <div className="mt-12 flex justify-center">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                  Previous
-                </Button>
-                {[1, 2, 3, 4, 5].map((page) => (
-                  <Button
-                    key={page}
-                    variant={page === 1 ? "default" : "outline"}
+            {totalPages > 1 && (
+              <div className="mt-12 flex justify-center">
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
                     size="sm"
-                    className="w-10"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
                   >
-                    {page}
+                    Previous
                   </Button>
-                ))}
-                <Button variant="outline" size="sm">
-                  Next
-                </Button>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const page = i + 1;
+                    return (
+                      <Button
+                        key={page}
+                        variant={page === currentPage ? "default" : "outline"}
+                        size="sm"
+                        className="w-10"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

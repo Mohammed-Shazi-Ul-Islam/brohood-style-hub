@@ -2,13 +2,22 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
+import Login from "./pages/Login";
+import { WorkingAdminDashboard } from "./pages/admin/WorkingAdminDashboard";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminRedirect } from "./pages/admin/AdminRedirect";
+import { AdminProducts } from "./pages/admin/Products";
+import { AdminCategories } from "./pages/admin/Categories";
+import { AdminLogin } from "./components/auth/AdminLogin";
+import { TestAdmin } from "./pages/admin/TestAdmin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,21 +27,69 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+      <BrowserRouter future={{ v7_relativeSplatPath: true }}>
+        <Routes>
+          {/* Admin Routes - Protected (NO AuthProvider wrapper) */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/test" element={<TestAdmin />} />
+          <Route path="/admin" element={<AdminRedirect />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/categories" element={<AdminCategories />} />
+          <Route path="/admin/orders" element={<WorkingAdminDashboard />} />
+          <Route path="/admin/customers" element={<WorkingAdminDashboard />} />
+          <Route path="/admin/settings" element={<WorkingAdminDashboard />} />
+          
+          {/* Public Routes - Wrapped with AuthProvider for customer features */}
+          <Route path="/" element={
+            <AuthProvider>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-1">
+                  <Home />
+                </main>
+                <Footer />
+              </div>
+            </AuthProvider>
+          } />
+          <Route path="/products" element={
+            <AuthProvider>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-1">
+                  <Products />
+                </main>
+                <Footer />
+              </div>
+            </AuthProvider>
+          } />
+          <Route path="/product/:id" element={
+            <AuthProvider>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-1">
+                  <ProductDetail />
+                </main>
+                <Footer />
+              </div>
+            </AuthProvider>
+          } />
+          <Route path="/cart" element={
+            <AuthProvider>
+              <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-1">
+                  <Cart />
+                </main>
+                <Footer />
+              </div>
+            </AuthProvider>
+          } />
+          <Route path="/login" element={<Login />} />
+          
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

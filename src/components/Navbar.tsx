@@ -23,7 +23,7 @@ export const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border shadow-sm">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       {/* Top Bar */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
@@ -35,11 +35,11 @@ export const Navbar = () => {
           {/* Desktop Search */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="search"
                 placeholder="Search for products, brands..."
-                className="w-full pl-10 bg-muted/50 border-0 focus-visible:ring-primary"
+                className="w-full pl-10 bg-gray-50 border-gray-200 text-black placeholder:text-gray-500 focus-visible:ring-black"
               />
             </div>
           </div>
