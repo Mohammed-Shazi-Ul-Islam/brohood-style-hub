@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Filter, SlidersHorizontal, Loader2 } from "lucide-react";
+import { Filter, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import {
@@ -27,44 +27,40 @@ const Products = () => {
   const [sortBy, setSortBy] = useState("created_at");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const { categories, loading: categoriesLoading } = useCategories();
+
   // Build filters object
   const filters: ProductFilters = {
     price_min: priceRange[0],
     price_max: priceRange[1],
-    search: searchParams.get('search') || undefined,
+    search: searchParams.get("search") || undefined,
+    category_slug: searchParams.get('category') || undefined,
   };
 
   // Add category filter if selected
-  if (selectedCategories.length > 0) {
-    // Find category ID from slug
+  if (selectedCategories.length > 0 && categories.length > 0) {
     const categorySlug = selectedCategories[0];
-    const category = categories.find(c => c.slug === categorySlug);
-    if (category) {
-      filters.category_id = category.id;
-    }
+    const category = categories.find((c) => c.slug === categorySlug);
+    if (category) filters.category_id = category.id;
   }
 
   // Add category from URL params
-  const categoryFromUrl = searchParams.get('category');
-  if (categoryFromUrl && selectedCategories.length === 0) {
-    const category = categories.find(c => c.slug === categoryFromUrl);
-    if (category) {
-      filters.category_id = category.id;
-    }
+  const categoryFromUrl = searchParams.get("category");
+  if (categoryFromUrl && selectedCategories.length === 0 && categories.length > 0) {
+    const category = categories.find((c) => c.slug === categoryFromUrl);
+    if (category) filters.category_id = category.id;
   }
 
   // Fetch data
   const { products, loading, error, total } = useProducts({
     filters,
     pagination: { page: currentPage, limit: 12 },
-    sortBy
+    sortBy,
   });
-
-  const { categories, loading: categoriesLoading } = useCategories();
 
   // Update selected categories when URL changes
   useEffect(() => {
-    const categoryFromUrl = searchParams.get('category');
+    const categoryFromUrl = searchParams.get("category");
     if (categoryFromUrl && !selectedCategories.includes(categoryFromUrl)) {
       setSelectedCategories([categoryFromUrl]);
     }
@@ -86,7 +82,9 @@ const Products = () => {
   // Toggle filter selections
   const toggleCategory = (categorySlug: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(categorySlug) ? prev.filter((c) => c !== categorySlug) : [...prev, categorySlug]
+      prev.includes(categorySlug)
+        ? prev.filter((c) => c !== categorySlug)
+        : [...prev, categorySlug]
     );
     setCurrentPage(1); // Reset to first page when filters change
   };
@@ -99,7 +97,9 @@ const Products = () => {
 
   const toggleDiscount = (discount: string) => {
     setSelectedDiscounts((prev) =>
-      prev.includes(discount) ? prev.filter((d) => d !== discount) : [...prev, discount]
+      prev.includes(discount)
+        ? prev.filter((d) => d !== discount)
+        : [...prev, discount]
     );
   };
 
@@ -109,15 +109,93 @@ const Products = () => {
     );
   };
 
+  // ✅ Neutral category detection (Shirts, Jeans, etc.)
+  const neutralCategories = [
+    "t-shirts",
+    "shirts",
+    "jeans",
+    "jackets",
+    "trousers",
+    "shorts",
+    "hoodies",
+    "footwear",
+    "accessories",
+  ];
+  const isNeutralCategory =
+    categoryFromUrl && neutralCategories.includes(categoryFromUrl.toLowerCase());
+
+  // ✅ If user clicked a neutral category before selecting men/women
+  if (isNeutralCategory) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center bg-gray-50 py-12 px-4">
+        <h2 className="text-4xl font-serif font-bold text-gray-900 mb-8">
+          Choose Your Collection
+        </h2>
+        <p className="text-gray-600 mb-10 text-center">
+          Are you shopping for the Men’s or Women’s {categoryFromUrl}?
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+          {/* For Men */}
+          <div
+            onClick={() =>
+              setSearchParams({ category: `mens-${categoryFromUrl}` })
+            }
+            className="group relative h-80 rounded-lg overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1080&q=80"
+              alt="For Men"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all duration-500" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+              <h3 className="text-3xl font-serif font-bold mb-2">
+                Shop Men’s {categoryFromUrl}
+              </h3>
+              <div className="w-12 h-0.5 bg-gold group-hover:scale-x-100 transform scale-x-0 transition-transform duration-500" />
+            </div>
+          </div>
+
+          {/* For Women */}
+          <div
+            onClick={() =>
+              setSearchParams({ category: `womens-${categoryFromUrl}` })
+            }
+            className="group relative h-80 rounded-lg overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+          >
+            <img
+              src="https://images.pexels.com/photos/2983464/pexels-photo-2983464.jpeg?auto=compress&cs=tinysrgb&w=1080"
+              alt="For Women"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-all duration-500" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+              <h3 className="text-3xl font-serif font-bold mb-2">
+                Shop Women’s {categoryFromUrl}
+              </h3>
+              <div className="w-12 h-0.5 bg-gold group-hover:scale-x-100 transform scale-x-0 transition-transform duration-500" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Normal product rendering continues here
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-black">All Products</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-black">
+              All Products
+            </h1>
             <p className="text-gray-600">
-              {loading ? 'Loading...' : `Showing ${products.length} of ${total} products`}
+              {loading
+                ? "Loading..."
+                : `Showing ${products.length} of ${total} products`}
             </p>
           </div>
           <div className="flex items-center gap-4">
@@ -157,7 +235,12 @@ const Products = () => {
                   <SlidersHorizontal className="h-4 w-4" />
                   Filters
                 </h3>
-                <Button variant="link" size="sm" className="text-black hover:text-gray-600" onClick={clearAllFilters}>
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="text-black hover:text-gray-600"
+                  onClick={clearAllFilters}
+                >
                   Clear All
                 </Button>
               </div>
@@ -168,15 +251,23 @@ const Products = () => {
                 <div className="space-y-2">
                   {categoriesLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
-                      <div key={index} className="h-5 bg-gray-200 animate-pulse rounded" />
+                      <div
+                        key={index}
+                        className="h-5 bg-gray-200 animate-pulse rounded"
+                      />
                     ))
                   ) : categories.length === 0 ? (
-                    <p className="text-sm text-gray-500">No categories available</p>
+                    <p className="text-sm text-gray-500">
+                      No categories available
+                    </p>
                   ) : (
                     categories.map((category) => (
-                      <div key={category.id} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={category.slug} 
+                      <div
+                        key={category.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <Checkbox
+                          id={category.slug}
                           checked={selectedCategories.includes(category.slug)}
                           onCheckedChange={() => toggleCategory(category.slug)}
                         />
@@ -215,7 +306,9 @@ const Products = () => {
                   {["S", "M", "L", "XL", "XXL"].map((size) => (
                     <Button
                       key={size}
-                      variant={selectedSizes.includes(size) ? "default" : "outline"}
+                      variant={
+                        selectedSizes.includes(size) ? "default" : "outline"
+                      }
                       size="sm"
                       className="h-10"
                       onClick={() => toggleSize(size)}
@@ -230,23 +323,26 @@ const Products = () => {
               <div className="space-y-3">
                 <h4 className="font-medium text-black">Discount</h4>
                 <div className="space-y-2">
-                  {["10% and above", "20% and above", "30% and above", "50% and above"].map(
-                    (discount) => (
-                      <div key={discount} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={discount}
-                          checked={selectedDiscounts.includes(discount)}
-                          onCheckedChange={() => toggleDiscount(discount)}
-                        />
-                        <Label
-                          htmlFor={discount}
-                          className="text-sm cursor-pointer"
-                        >
-                          {discount}
-                        </Label>
-                      </div>
-                    )
-                  )}
+                  {[
+                    "10% and above",
+                    "20% and above",
+                    "30% and above",
+                    "50% and above",
+                  ].map((discount) => (
+                    <div key={discount} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={discount}
+                        checked={selectedDiscounts.includes(discount)}
+                        onCheckedChange={() => toggleDiscount(discount)}
+                      />
+                      <Label
+                        htmlFor={discount}
+                        className="text-sm cursor-pointer"
+                      >
+                        {discount}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -256,12 +352,15 @@ const Products = () => {
                 <div className="space-y-2">
                   {["4★ & above", "3★ & above", "2★ & above"].map((rating) => (
                     <div key={rating} className="flex items-center space-x-2">
-                      <Checkbox 
+                      <Checkbox
                         id={rating}
                         checked={selectedRatings.includes(rating)}
                         onCheckedChange={() => toggleRating(rating)}
                       />
-                      <Label htmlFor={rating} className="text-sm cursor-pointer">
+                      <Label
+                        htmlFor={rating}
+                        className="text-sm cursor-pointer"
+                      >
                         {rating}
                       </Label>
                     </div>
@@ -271,12 +370,83 @@ const Products = () => {
             </div>
           </aside>
 
-          {/* Products Grid */}
+          {/* ✅ Products Grid & Subcategory Bar */}
           <div className="flex-1">
+            {(() => {
+              const categoryFromUrl = searchParams.get("category");
+              if (!categoryFromUrl || categories.length === 0) return null;
+
+              const parentCategory = categories.find(
+                (c) => c.slug === categoryFromUrl
+              );
+              const subcategories = parentCategory
+                ? categories.filter(
+                    (c) => c.parent_id === parentCategory.id
+                  )
+                : [];
+              const parentOfCurrent = categories.find(
+                (c) => c.id === parentCategory?.parent_id
+              );
+              const siblings = parentOfCurrent
+                ? categories.filter(
+                    (c) => c.parent_id === parentOfCurrent.id
+                  )
+                : [];
+
+              const subcatsToShow =
+                subcategories.length > 0
+                  ? subcategories
+                  : siblings.length > 0
+                  ? siblings
+                  : [];
+
+              if (subcatsToShow.length === 0) return null;
+
+              return (
+                <div className="flex flex-wrap gap-3 mb-8 border-b pb-3">
+                  <Button
+                    variant={
+                      subcategories.length > 0 &&
+                      searchParams.get("category") === parentCategory?.slug
+                        ? "default"
+                        : "outline"
+                    }
+                    onClick={() =>
+                      setSearchParams({
+                        category: parentCategory?.slug || categoryFromUrl,
+                      })
+                    }
+                  >
+                    All
+                  </Button>
+
+                  {subcatsToShow.map((sub) => (
+                    <Button
+                      key={sub.slug}
+                      variant={
+                        searchParams.get("category") === sub.slug
+                          ? "default"
+                          : "outline"
+                      }
+                      onClick={() =>
+                        setSearchParams({ category: sub.slug })
+                      }
+                    >
+                      {sub.name}
+                    </Button>
+                  ))}
+                </div>
+              );
+            })()}
+
+            {/* ✅ Product Grid Rendering */}
             {loading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 {Array.from({ length: 12 }).map((_, index) => (
-                  <div key={index} className="bg-card rounded-lg overflow-hidden border border-border">
+                  <div
+                    key={index}
+                    className="bg-card rounded-lg overflow-hidden border border-border"
+                  >
                     <div className="aspect-[3/4] bg-muted animate-pulse" />
                     <div className="p-4 space-y-2">
                       <div className="h-3 bg-muted animate-pulse rounded" />
@@ -299,7 +469,9 @@ const Products = () => {
               </div>
             ) : (
               <div className="text-center py-16">
-                <p className="text-xl text-muted-foreground mb-4">No products found</p>
+                <p className="text-xl text-muted-foreground mb-4">
+                  No products found
+                </p>
                 <Button onClick={clearAllFilters}>Clear Filters</Button>
               </div>
             )}
@@ -308,8 +480,8 @@ const Products = () => {
             {totalPages > 1 && (
               <div className="mt-12 flex justify-center">
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(currentPage - 1)}
@@ -321,7 +493,9 @@ const Products = () => {
                     return (
                       <Button
                         key={page}
-                        variant={page === currentPage ? "default" : "outline"}
+                        variant={
+                          page === currentPage ? "default" : "outline"
+                        }
                         size="sm"
                         className="w-10"
                         onClick={() => setCurrentPage(page)}
@@ -330,8 +504,8 @@ const Products = () => {
                       </Button>
                     );
                   })}
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(currentPage + 1)}
