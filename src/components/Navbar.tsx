@@ -4,6 +4,7 @@ import { Search, Heart, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.png";
+import { useCart } from "@/context/CartContext";
 
 const categories = [
   "All",
@@ -21,6 +22,7 @@ const categories = [
 export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { cartCount } = useCart();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -46,6 +48,7 @@ export const Navbar = () => {
 
           {/* Desktop Icons */}
           <div className="hidden md:flex items-center gap-6">
+            {/* Wishlist */}
             <Link to="/wishlist">
               <Button variant="ghost" size="icon" className="relative">
                 <Heart className="h-5 w-5" />
@@ -54,14 +57,20 @@ export const Navbar = () => {
                 </span>
               </Button>
             </Link>
+
+            {/* ✅ Dynamic Cart Badge */}
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
+
+            {/* Account */}
             <Link to="/account">
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
@@ -81,9 +90,11 @@ export const Navbar = () => {
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Button
