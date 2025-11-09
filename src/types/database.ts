@@ -138,6 +138,7 @@ export interface PaginationParams {
 
 export interface ProductFilters {
   category_id?: string;
+  category_slug?: string; 
   status?: ProductStatus;
   featured?: boolean;
   price_min?: number;
