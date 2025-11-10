@@ -2,15 +2,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/context/CartContext";
+
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Account from "./pages/Account";
 import Login from "./pages/Login";
+
 import { WorkingAdminDashboard } from "./pages/admin/WorkingAdminDashboard";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminRedirect } from "./pages/admin/AdminRedirect";
@@ -27,9 +32,10 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+
       <BrowserRouter future={{ v7_relativeSplatPath: true }}>
         <Routes>
-          {/* Admin Routes - Protected (NO AuthProvider wrapper) */}
+          {/* ========================= ADMIN ROUTES ========================= */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/test" element={<TestAdmin />} />
           <Route path="/admin" element={<AdminRedirect />} />
@@ -39,55 +45,107 @@ const App = () => (
           <Route path="/admin/orders" element={<WorkingAdminDashboard />} />
           <Route path="/admin/customers" element={<WorkingAdminDashboard />} />
           <Route path="/admin/settings" element={<WorkingAdminDashboard />} />
-          
-          {/* Public Routes - Wrapped with AuthProvider for customer features */}
-          <Route path="/" element={
-            <AuthProvider>
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
+
+          {/* ========================= PUBLIC ROUTES ========================= */}
+          <Route
+            path="/"
+            element={
+              <AuthProvider>
+                <CartProvider>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-1">
+                      <Home />
+                    </main>
+                    <Footer />
+                  </div>
+                </CartProvider>
+              </AuthProvider>
+            }
+          />
+
+          <Route
+            path="/products"
+            element={
+              <AuthProvider>
+                <CartProvider>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-1">
+                      <Products />
+                    </main>
+                    <Footer />
+                  </div>
+                </CartProvider>
+              </AuthProvider>
+            }
+          />
+
+          <Route
+            path="/product/:id"
+            element={
+              <AuthProvider>
+                <CartProvider>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-1">
+                      <ProductDetail />
+                    </main>
+                    <Footer />
+                  </div>
+                </CartProvider>
+              </AuthProvider>
+            }
+          />
+
+          <Route
+            path="/cart"
+            element={
+              <AuthProvider>
+                <CartProvider>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-1">
+                      <Cart />
+                    </main>
+                    <Footer />
+                  </div>
+                </CartProvider>
+              </AuthProvider>
+            }
+          />
+
+          <Route
+            path="/checkout"
+            element={
+              <AuthProvider>
+                <CartProvider>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-1">
+                      <Checkout />
+                    </main>
+                    <Footer />
+                  </div>
+                </CartProvider>
+              </AuthProvider>
+            }
+          />
+
+          <Route
+            path="/account"
+            element={
+              <AuthProvider>
                 <main className="flex-1">
-                  <Home />
+                  <Account />
                 </main>
-                <Footer />
-              </div>
-            </AuthProvider>
-          } />
-          <Route path="/products" element={
-            <AuthProvider>
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-1">
-                  <Products />
-                </main>
-                <Footer />
-              </div>
-            </AuthProvider>
-          } />
-          <Route path="/product/:id" element={
-            <AuthProvider>
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-1">
-                  <ProductDetail />
-                </main>
-                <Footer />
-              </div>
-            </AuthProvider>
-          } />
-          <Route path="/cart" element={
-            <AuthProvider>
-              <div className="flex flex-col min-h-screen">
-                <Navbar />
-                <main className="flex-1">
-                  <Cart />
-                </main>
-                <Footer />
-              </div>
-            </AuthProvider>
-          } />
+              </AuthProvider>
+            }
+          />
+
           <Route path="/login" element={<Login />} />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+          {/* ========================= FALLBACK ========================= */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
