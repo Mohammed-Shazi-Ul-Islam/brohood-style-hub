@@ -48,13 +48,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <img src={getPrimaryImage(product)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
       </Link>
 
-      <div className="p-4">
-        <h3 className="font-medium text-black">{product.name}</h3>
-        <p className="text-gray-500 text-sm">₹{product.price.toLocaleString()}</p>
+      <div className="p-3 sm:p-4">
+        <h3 className="font-medium text-black text-sm sm:text-base line-clamp-2 mb-1">{product.name}</h3>
+        <p className="text-gray-500 text-xs sm:text-sm mb-2 sm:mb-3">₹{product.price.toLocaleString()}</p>
 
-        <div className="flex gap-2 mt-3">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button
-            className="flex-1 bg-black hover:bg-gray-800 text-white"
+            size="sm"
+            className="flex-1 bg-black hover:bg-gray-800 text-white text-xs sm:text-sm h-8 sm:h-9"
             onClick={() =>
               addToCart({
                 id: product.id,
@@ -68,7 +69,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             Add to Cart
           </Button>
           <Button
-            className="flex-1 bg-gold hover:bg-gold-dark text-black"
+            size="sm"
+            className="flex-1 bg-gold hover:bg-gold-dark text-black text-xs sm:text-sm h-8 sm:h-9"
             onClick={() => handleBuyNow(product)}
           >
             Buy Now

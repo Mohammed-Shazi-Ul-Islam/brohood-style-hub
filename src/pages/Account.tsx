@@ -264,22 +264,22 @@ const Account = () => {
         </Link>
       </div>
 
-      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-10 space-y-8">
+      <div className="w-full max-w-4xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-100 p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8">
         <div className="text-center">
-          <div className="h-24 w-24 mx-auto rounded-full bg-gray-100 flex items-center justify-center shadow-inner border border-gray-200 mb-4">
-            <User className="h-12 w-12 text-gray-500" />
+          <div className="h-20 w-20 sm:h-24 sm:w-24 mx-auto rounded-full bg-gray-100 flex items-center justify-center shadow-inner border border-gray-200 mb-3 sm:mb-4">
+            <User className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500" />
           </div>
-          <h2 className="text-3xl font-serif font-bold text-gray-900">My Account</h2>
-          <p className="text-gray-600 text-base">
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900">My Account</h2>
+          <p className="text-gray-600 text-sm sm:text-base">
             Welcome back, {userMeta?.email?.split("@")[0]} 👋
           </p>
         </div>
 
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2">
-          <p className="text-sm text-gray-800">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 sm:p-4 space-y-2">
+          <p className="text-xs sm:text-sm text-gray-800">
             <span className="font-semibold">Email:</span> {userMeta?.email}
           </p>
-          <p className="text-sm text-gray-800">
+          <p className="text-xs sm:text-sm text-gray-800">
             <span className="font-semibold">Member Since:</span>{" "}
             {new Date(userMeta?.created_at || "").toLocaleDateString()}
           </p>
@@ -349,9 +349,9 @@ const Account = () => {
             ))}
           </div>
 
-          <div className="mt-8 space-y-4">
-            <h4 className="text-lg font-semibold">Add New Address</h4>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
+            <h4 className="text-base sm:text-lg font-semibold">Add New Address</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <Input
                 placeholder="First Name"
                 value={newAddress.first_name}
@@ -420,18 +420,18 @@ const Account = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 mt-8">
+        <div className="flex flex-col gap-3 sm:gap-4 mt-6 sm:mt-8">
           <Link to="/">
-            <Button variant="outline" className="w-full border-2 border-black text-black hover:bg-black hover:text-white rounded-full">
+            <Button variant="outline" className="w-full h-11 sm:h-12 border-2 border-black text-black hover:bg-black hover:text-white rounded-full text-sm sm:text-base">
               Continue Shopping
             </Button>
           </Link>
 
           <Button
             onClick={handleLogout}
-            className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium rounded-full"
+            className="w-full h-11 sm:h-12 bg-red-600 hover:bg-red-700 text-white font-medium rounded-full text-sm sm:text-base"
           >
-            <LogOut className="mr-2 h-5 w-5" /> Log Out
+            <LogOut className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> Log Out
           </Button>
         </div>
       </div>

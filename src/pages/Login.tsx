@@ -101,15 +101,15 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:p-6">
       <Card className="w-full max-w-md shadow-luxury">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-3xl font-serif">Welcome to BroHood</CardTitle>
-          <CardDescription className="text-base">
+        <CardHeader className="space-y-1 text-center px-4 sm:px-6">
+          <CardTitle className="text-2xl sm:text-3xl font-serif">Welcome to BroHood</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Sign in to access your cart and wishlist
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
@@ -127,7 +127,7 @@ const Login = () => {
             onClick={handleGoogleLogin}
             disabled={loading}
             variant="outline"
-            className="w-full h-12 text-base"
+            className="w-full h-11 sm:h-12 text-sm sm:text-base"
           >
             {loading ? (
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -177,7 +177,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="pl-10 h-12"
+                  className="pl-10 h-11 sm:h-12"
                 />
               </div>
             </div>
@@ -194,20 +194,20 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
-                  className="pl-10 h-12"
+                  className="pl-10 h-11 sm:h-12"
                 />
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 h-12 bg-black hover:bg-gray-800"
+                className="flex-1 h-11 sm:h-12 bg-black hover:bg-gray-800 text-sm sm:text-base"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
                     Signing in...
                   </>
                 ) : (
@@ -219,7 +219,7 @@ const Login = () => {
                 onClick={handleSignUp}
                 disabled={loading}
                 variant="outline"
-                className="flex-1 h-12"
+                className="flex-1 h-11 sm:h-12 text-sm sm:text-base"
               >
                 Sign Up
               </Button>

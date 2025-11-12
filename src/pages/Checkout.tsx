@@ -194,30 +194,30 @@ const Checkout = () => {
   // UI
   // -----------------------------
   return (
-    <div className="min-h-screen container mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+    <div className="min-h-screen container mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Checkout</h1>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
         {/* LEFT: Items */}
-        <div className="lg:col-span-2 bg-white border p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Order Details</h2>
+        <div className="lg:col-span-2 bg-white border p-4 sm:p-6 rounded-lg">
+          <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Order Details</h2>
           <div className="space-y-6">
             {checkoutItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-6 border-b pb-4 last:border-none"
+                className="flex items-center gap-3 sm:gap-6 border-b pb-3 sm:pb-4 last:border-none"
               >
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-24 h-24 object-cover rounded-lg"
+                  className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
                 />
-                <div>
-                  <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-gray-600 text-sm">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm sm:text-base truncate">{item.name}</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm">
                     Quantity: {item.quantity || 1}
                   </p>
-                  <p className="font-bold mt-2">
+                  <p className="font-bold mt-1 sm:mt-2 text-sm sm:text-base">
                     ₹{(item.price * (item.quantity || 1)).toLocaleString()}
                   </p>
                 </div>
@@ -227,8 +227,8 @@ const Checkout = () => {
         </div>
 
         {/* RIGHT: Address + Summary */}
-        <div className="bg-white border p-6 rounded-lg space-y-6">
-          <h2 className="text-xl font-bold">Delivery Address</h2>
+        <div className="bg-white border p-4 sm:p-6 rounded-lg space-y-4 sm:space-y-6">
+          <h2 className="text-lg sm:text-xl font-bold">Delivery Address</h2>
 
           {/* Address options */}
           <div className="space-y-4">
@@ -376,15 +376,15 @@ const Checkout = () => {
           <Separator className="my-4" />
 
           {/* Order Summary */}
-          <h2 className="text-xl font-bold">Order Summary</h2>
-          <div className="flex justify-between text-lg font-semibold mt-2">
+          <h2 className="text-lg sm:text-xl font-bold">Order Summary</h2>
+          <div className="flex justify-between text-base sm:text-lg font-semibold mt-2">
             <span>Total</span>
             <span>₹{total.toLocaleString()}</span>
           </div>
 
           <Button
             onClick={handlePayment}
-            className="w-full mt-6 bg-black hover:bg-gray-800"
+            className="w-full mt-4 sm:mt-6 bg-black hover:bg-gray-800 h-11 sm:h-12 text-sm sm:text-base"
           >
             Proceed to Payment
           </Button>

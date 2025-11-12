@@ -32,20 +32,20 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        <h1 className="text-3xl md:text-4xl font-bold mb-8">Shopping Cart</h1>
+    <div className="min-h-screen py-6 sm:py-8">
+      <div className="container mx-auto px-4 sm:px-6">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8">Shopping Cart</h1>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
             {cart.map((item) => (
               <div
                 key={item.id}
-                className="bg-card rounded-lg border border-border p-4 md:p-6"
+                className="bg-card rounded-lg border border-border p-3 sm:p-4 md:p-6"
               >
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-24 h-24 md:w-32 md:h-32">
+                <div className="flex gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -53,26 +53,27 @@ const Cart = () => {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between gap-4 mb-2">
-                      <h3 className="font-semibold text-lg">{item.name}</h3>
+                    <div className="flex justify-between gap-2 sm:gap-4 mb-2">
+                      <h3 className="font-semibold text-sm sm:text-base lg:text-lg truncate">{item.name}</h3>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="flex-shrink-0"
+                        className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
                         onClick={() => removeFromCart(item.id)}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
                       </Button>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-3">
+                    <div className="text-xs sm:text-sm text-muted-foreground mb-2 sm:mb-3">
                       Quantity: {item.quantity}
                     </div>
-                    <div className="flex justify-between items-center">
-                      <Button variant="ghost" size="sm" className="text-primary">
-                        <Heart className="h-4 w-4 mr-2" />
-                        Move to Wishlist
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <Button variant="ghost" size="sm" className="text-primary text-xs sm:text-sm h-8 px-2 sm:px-3">
+                        <Heart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Move to Wishlist</span>
+                        <span className="sm:hidden">Wishlist</span>
                       </Button>
-                      <div className="font-bold text-lg">
+                      <div className="font-bold text-base sm:text-lg">
                         ₹{(item.price * item.quantity).toLocaleString()}
                       </div>
                     </div>

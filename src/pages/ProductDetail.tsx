@@ -193,17 +193,17 @@ const ProductDetail = () => {
       </div>
 
       {/* Product Section */}
-      <div className="container mx-auto px-4 py-8 grid lg:grid-cols-2 gap-8 lg:gap-12">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
         {/* Image */}
         <div>
-          <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative">
+          <div className="aspect-square bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden relative">
             <img
               src={mainImage}
               alt={product.name}
               className="w-full h-full object-cover"
             />
             {discount > 0 && (
-              <Badge className="absolute top-4 left-4 bg-red-500 text-white px-4 py-1">
+              <Badge className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-red-500 text-white px-3 sm:px-4 py-1 text-xs sm:text-sm">
                 Save {discount}%
               </Badge>
             )}
@@ -211,36 +211,36 @@ const ProductDetail = () => {
         </div>
 
         {/* Info */}
-        <div className="space-y-6">
-          <h1 className="text-4xl font-bold">{product.name}</h1>
-          <p className="text-gray-600">{product.description}</p>
+        <div className="space-y-4 sm:space-y-6">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">{product.name}</h1>
+          <p className="text-gray-600 text-sm sm:text-base">{product.description}</p>
 
-          <div className="flex items-center gap-4">
-            <span className="text-3xl font-bold text-black">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="text-2xl sm:text-3xl font-bold text-black">
               ₹{product.price.toLocaleString()}
             </span>
             {product.original_price && (
-              <span className="text-gray-400 line-through">
+              <span className="text-gray-400 line-through text-lg sm:text-xl">
                 ₹{product.original_price.toLocaleString()}
               </span>
             )}
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3 sm:gap-4 pt-2 sm:pt-4">
             <Button
               size="lg"
-              className="flex-1 h-14 bg-black text-white hover:bg-gray-800"
+              className="flex-1 h-11 sm:h-12 lg:h-14 bg-black text-white hover:bg-gray-800 text-sm sm:text-base"
               onClick={handleAddToCart}
               disabled={addingToCart}
             >
               {addingToCart ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Adding...
+                  <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> Adding...
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
+                  <ShoppingCart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" /> Add to Cart
                 </>
               )}
             </Button>
@@ -248,14 +248,14 @@ const ProductDetail = () => {
             <Button
               size="lg"
               variant="outline"
-              className="h-14 w-14"
+              className="h-11 w-11 sm:h-12 sm:w-12 lg:h-14 lg:w-14 flex-shrink-0"
               onClick={handleAddToWishlist}
               disabled={addingToWishlist}
             >
               {addingToWishlist ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               ) : (
-                <Heart className="h-5 w-5" />
+                <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
             </Button>
           </div>
@@ -263,25 +263,25 @@ const ProductDetail = () => {
           <Button
             size="lg"
             variant="secondary"
-            className="w-full h-14 text-lg mt-3"
+            className="w-full h-11 sm:h-12 lg:h-14 text-base sm:text-lg mt-2 sm:mt-3"
             onClick={handleBuyNow}
           >
             Buy Now
           </Button>
 
           {/* Features */}
-          <div className="border-t border-gray-100 pt-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <Truck className="h-6 w-6 text-black" />
-              <span>Free Delivery on orders above ₹999</span>
+          <div className="border-t border-gray-100 pt-4 sm:pt-6 space-y-3 sm:space-y-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-black flex-shrink-0" />
+              <span className="text-sm sm:text-base">Free Delivery on orders above ₹999</span>
             </div>
-            <div className="flex items-center gap-3">
-              <RefreshCcw className="h-6 w-6 text-black" />
-              <span>7-Day Return Policy</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <RefreshCcw className="h-5 w-5 sm:h-6 sm:w-6 text-black flex-shrink-0" />
+              <span className="text-sm sm:text-base">7-Day Return Policy</span>
             </div>
-            <div className="flex items-center gap-3">
-              <Shield className="h-6 w-6 text-black" />
-              <span>Secure Checkout with Razorpay</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-black flex-shrink-0" />
+              <span className="text-sm sm:text-base">Secure Checkout with Razorpay</span>
             </div>
           </div>
         </div>
