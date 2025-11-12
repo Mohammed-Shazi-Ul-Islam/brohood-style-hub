@@ -4,6 +4,8 @@
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+--i created function as handle_new_user that triggers when new register happens and get stored in  cutomer_profiles table
+
 -- Create custom types/enums
 CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'refunded', 'partially_refunded');
@@ -90,36 +92,10 @@ CREATE TABLE admin_users (
 );
 
 -- Customer profiles table (extends auth.users)
-CREATE TABLE customer_profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  first_name TEXT,
-  last_name TEXT,
-  phone TEXT,
-  date_of_birth DATE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+--it is created from supabase table editor
 
 -- Addresses table
-CREATE TABLE addresses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  type TEXT NOT NULL, -- 'shipping' or 'billing'
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
-  company TEXT,
-  address_line_1 TEXT NOT NULL,
-  address_line_2 TEXT,
-  city TEXT NOT NULL,
-  state TEXT NOT NULL,
-  postal_code TEXT NOT NULL,
-  country TEXT NOT NULL DEFAULT 'India',
-  phone TEXT,
-  is_default BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+--it is created from supabase table editor
 
 -- Orders table
 CREATE TABLE orders (
