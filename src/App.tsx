@@ -8,6 +8,7 @@ import { CartProvider } from "@/context/CartContext";
 
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+import { AIChatbot } from "./components/AIChatbot";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -58,6 +59,7 @@ const App = () => (
                       <Home />
                     </main>
                     <Footer />
+                    <AIChatbot />
                   </div>
                 </CartProvider>
               </AuthProvider>
@@ -75,6 +77,7 @@ const App = () => (
                       <Products />
                     </main>
                     <Footer />
+                    <AIChatbot />
                   </div>
                 </CartProvider>
               </AuthProvider>
@@ -92,6 +95,7 @@ const App = () => (
                       <ProductDetail />
                     </main>
                     <Footer />
+                    <AIChatbot />
                   </div>
                 </CartProvider>
               </AuthProvider>
@@ -109,6 +113,7 @@ const App = () => (
                       <Cart />
                     </main>
                     <Footer />
+                    <AIChatbot />
                   </div>
                 </CartProvider>
               </AuthProvider>
@@ -126,6 +131,7 @@ const App = () => (
                       <Checkout />
                     </main>
                     <Footer />
+                    <AIChatbot />
                   </div>
                 </CartProvider>
               </AuthProvider>
