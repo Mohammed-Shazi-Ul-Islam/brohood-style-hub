@@ -109,7 +109,54 @@ export function AIChatbot() {
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
 
-    // ALWAYS use Gemini AI first for intelligent understanding
+    // 1. Check if asking about ORDERS - fetch from database
+    if (lowerQuery.includes('order') || lowerQuery.includes('track') || lowerQuery.includes('delivery') || lowerQuery.includes('shipping')) {
+      return await handleOrderQuery(userId);
+    }
+
+    // 2. Check if FINDING PRODUCTS - fetch from database
+    if (lowerQuery.includes('show') || lowerQuery.includes('find') || lowerQuery.includes('search') || lowerQuery.includes('looking for')) {
+      return await handleProductSearch(query, lowerQuery);
+    }
+
+    // 3. Check if PAYMENT/SUPPORT queries - predefined responses
+    if (lowerQuery.includes('payment') || lowerQuery.includes('pay') || lowerQuery.includes('cod') || lowerQuery.includes('upi')) {
+      return {
+        text: "💳 Payment Methods We Accept:\n\n✅ Available:\n• UPI (Google Pay, PhonePe, Paytm)\n• Credit/Debit Cards\n• Net Banking\n• Wallets\n• Cash on Delivery (COD)\n\n🎁 Offers:\n• FIRST10 - 10% off first order\n• FREE999 - Free shipping on ₹999+\n\n💡 EMI available on orders ₹3000+",
+        suggestions: ['Current offers', 'COD info', 'UPI payment', 'Browse products']
+      };
+    }
+
+    if (lowerQuery.includes('return') || lowerQuery.includes('exchange') || lowerQuery.includes('refund')) {
+      return {
+        text: "🔄 Return & Exchange Policy:\n\n✅ Easy Returns:\n• 7-day return window\n• Free return pickup\n• Full refund or exchange\n\n📋 Conditions:\n• Unused with tags\n• Original packaging\n\n🆘 Need help? Contact: support@brohood.com",
+        suggestions: ['Contact support', 'Track order', 'Browse products']
+      };
+    }
+
+    if (lowerQuery.includes('store') || lowerQuery.includes('contact') || lowerQuery.includes('location')) {
+      return {
+        text: "🏪 BroHood Store:\n\n📍 Store: BROHOOD\n📍 Address: [To be updated]\n⏰ Timing: [To be updated]\n\n📞 Contact:\n• Email: support@brohood.com\n• Phone: [To be updated]\n\n💡 Shop online 24/7!",
+        suggestions: ['Browse products', 'Contact us', 'Shipping info']
+      };
+    }
+
+    if (lowerQuery.includes('size') || lowerQuery.includes('fit') || lowerQuery.includes('measurement')) {
+      return {
+        text: "📏 Size Guide:\n\n👕 Shirts/T-Shirts:\n• S: 5'4\"-5'7\", Chest 36-38\", Weight 50-60kg\n• M: 5'7\"-5'10\", Chest 38-40\", Weight 60-70kg\n• L: 5'10\"-6'1\", Chest 40-42\", Weight 70-80kg\n• XL: 6'1\"+, Chest 42-44\", Weight 80kg+\n\n👖 Jeans: Waist size in inches (28-38)\n\n💡 Check product page for specific measurements!",
+        suggestions: ['Find products', 'Style advice', 'Browse all']
+      };
+    }
+
+    // 4. For STYLE ADVICE - Use Gemini AI
+    if (lowerQuery.includes('style') || lowerQuery.includes('outfit') || lowerQuery.includes('wear') || 
+        lowerQuery.includes('match') || lowerQuery.includes('party') || lowerQuery.includes('wedding') ||
+        lowerQuery.includes('beach') || lowerQuery.includes('casual') || lowerQuery.includes('formal') ||
+        lowerQuery.includes('gift') || lowerQuery.includes('occasion') || lowerQuery.includes('look')) {
+      return await getGeminiResponse(query, userId, lowerQuery);
+    }
+
+    // 5. Default - Use Gemini for anything else
     return await getGeminiResponse(query, userId, lowerQuery);
   };
 
