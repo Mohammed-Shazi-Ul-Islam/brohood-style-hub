@@ -1,10 +1,10 @@
 const Shipping = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8 text-center">Shipping Policy</h1>
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
+      <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-8 text-center">Shipping Policy</h1>
         
-        <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
           <section>
             <h2 className="text-2xl font-bold mb-4">Shipping Information</h2>
             <p className="text-gray-700 mb-4">

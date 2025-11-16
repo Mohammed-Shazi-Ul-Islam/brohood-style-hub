@@ -1,12 +1,12 @@
 const Terms = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8 text-center">Terms & Conditions</h1>
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
+      <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-8 text-center">Terms & Conditions</h1>
         
-        <div className="bg-white rounded-lg shadow-lg p-8 space-y-6 text-gray-700">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 text-sm sm:text-base text-gray-700">
           <section>
-            <h2 className="text-2xl font-bold mb-4 text-black">1. Introduction</h2>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-4 text-black">1. Introduction</h2>
             <p>Welcome to BroHood. By accessing and using our website, you agree to comply with these terms and conditions.</p>
           </section>
 

@@ -1,17 +1,17 @@
 const SizeGuide = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8 text-center">Size Guide</h1>
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-12">
+      <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-8 text-center">Size Guide</h1>
         
-        <div className="bg-white rounded-lg shadow-lg p-8 space-y-8">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Shirts Size Chart</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-4">Shirts Size Chart</h2>
+            <div className="overflow-x-auto -mx-4 sm:mx-0">
+              <table className="w-full border-collapse text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="border p-3 text-left">Size</th>
+                    <th className="border p-2 sm:p-3 text-left">Size</th>
                     <th className="border p-3 text-left">Chest (inches)</th>
                     <th className="border p-3 text-left">Length (inches)</th>
                     <th className="border p-3 text-left">Shoulder (inches)</th>
