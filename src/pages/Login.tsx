@@ -15,6 +15,9 @@ const Login = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -75,6 +78,12 @@ const Login = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!firstName || !lastName) {
+      setError('Please enter your full name');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setMessage('');
@@ -84,14 +93,27 @@ const Login = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}${redirectTo}`
+          emailRedirectTo: `${window.location.origin}${redirectTo}`,
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+          }
         }
       });
 
       if (signUpError) throw signUpError;
 
       if (data.user) {
-        setMessage('Check your email for the confirmation link!');
+        // Update customer profile with name
+        await supabase.from('customer_profiles').upsert({
+          user_id: data.user.id,
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+        });
+
+        setMessage('Account created! Check your email for confirmation.');
+        setIsSignUp(false);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to sign up');
@@ -163,8 +185,39 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Email Sign In */}
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          {/* Email Sign In/Up Form */}
+          <form onSubmit={isSignUp ? handleSignUp : handleEmailLogin} className="space-y-4">
+            {isSignUp && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required={isSignUp}
+                    disabled={loading}
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required={isSignUp}
+                    disabled={loading}
+                    className="h-11"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -194,34 +247,40 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
+                  minLength={6}
                   className="pl-10 h-11 sm:h-12"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col gap-2">
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 h-11 sm:h-12 bg-black hover:bg-gray-800 text-sm sm:text-base"
+                className="w-full h-11 sm:h-12 bg-black hover:bg-gray-800 text-sm sm:text-base"
               >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                    Signing in...
+                    {isSignUp ? 'Creating account...' : 'Signing in...'}
                   </>
                 ) : (
-                  'Sign In'
+                  isSignUp ? 'Create Account' : 'Sign In'
                 )}
               </Button>
+              
               <Button
                 type="button"
-                onClick={handleSignUp}
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setError('');
+                  setMessage('');
+                }}
                 disabled={loading}
-                variant="outline"
-                className="flex-1 h-11 sm:h-12 text-sm sm:text-base"
+                variant="ghost"
+                className="w-full h-11 text-sm"
               >
-                Sign Up
+                {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
               </Button>
             </div>
           </form>

@@ -154,7 +154,7 @@ const Checkout = () => {
   // -----------------------------
   // Handle payment
   // -----------------------------
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (showNewAddress) {
       toast.error("Please save your new address before proceeding!");
       return;
@@ -165,8 +165,106 @@ const Checkout = () => {
       return;
     }
 
-    toast.success("Redirecting to payment gateway...");
-    localStorage.removeItem("checkoutItem");
+    try {
+      toast.loading("Preparing payment...");
+      
+      // Get user session
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData?.session;
+      if (!session?.user) {
+        toast.error("Please login to continue");
+        return;
+      }
+
+      // Prepare order items
+      const orderItems = checkoutItems.map((item) => ({
+        product_id: item.id,
+        variant_id: null,
+        quantity: item.quantity || 1,
+        unit_price: item.price,
+        total_price: item.price * (item.quantity || 1),
+        product_snapshot: {
+          name: item.name,
+          image: item.image,
+          price: item.price,
+        },
+      }));
+
+      // Calculate amounts
+      const subtotal = total;
+      const shipping = subtotal >= 999 ? 0 : 99;
+      const tax = 0;
+      const discount = 0;
+      const totalAmount = subtotal + shipping - discount;
+
+      // Create order in database
+      const { createOrder, initializeRazorpay, verifyPayment, markPaymentFailed } = await import("@/lib/razorpay");
+      
+      const orderData = await createOrder({
+        items: orderItems,
+        shipping_address: selectedAddress,
+        billing_address: selectedAddress,
+        subtotal,
+        shipping_amount: shipping,
+        tax_amount: tax,
+        discount_amount: discount,
+        total_amount: totalAmount,
+        notes: "Order from checkout",
+      });
+
+      toast.dismiss();
+      toast.success("Order created! Opening payment...");
+
+      // Initialize Razorpay payment (without order_id for test mode)
+      await initializeRazorpay({
+        orderNumber: orderData.order_number,
+        amount: totalAmount,
+        currency: "INR",
+        customerName: `${selectedAddress.first_name} ${selectedAddress.last_name}`,
+        customerEmail: session.user.email || "",
+        customerPhone: selectedAddress.phone,
+        onSuccess: async (razorpayResponse: any) => {
+          try {
+            // Verify payment
+            await verifyPayment(
+              orderData.order_id,
+              razorpayResponse.razorpay_order_id || "test_order_" + Date.now(),
+              razorpayResponse.razorpay_payment_id,
+              razorpayResponse.razorpay_signature || "test_signature"
+            );
+
+            // Clear cart and checkout items
+            localStorage.removeItem("checkoutItem");
+            localStorage.removeItem("cart");
+
+            toast.success("Payment successful! Order placed.");
+            
+            // Redirect to order confirmation
+            window.location.href = `/order-success?order=${orderData.order_number}`;
+          } catch (error) {
+            console.error("Payment verification error:", error);
+            toast.error("Payment verification failed. Please contact support.");
+          }
+        },
+        onFailure: async (error: any) => {
+          console.error("Payment failed:", error);
+          await markPaymentFailed(orderData.order_id, error.message || "Payment cancelled");
+          toast.error("Payment failed. Please try again.");
+        },
+      });
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      toast.dismiss();
+      
+      // Better error messages
+      if (error.message?.includes("create_order_with_razorpay")) {
+        toast.error("Database setup incomplete. Please run the SQL migration first!");
+      } else if (error.message?.includes("permission denied")) {
+        toast.error("Permission error. Please make sure you're logged in.");
+      } else {
+        toast.error(error.message || "Failed to process payment");
+      }
+    }
   };
 
   // -----------------------------

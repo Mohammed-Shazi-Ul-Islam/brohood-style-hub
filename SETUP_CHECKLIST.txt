@@ -1,0 +1,95 @@
+╔══════════════════════════════════════════════════════════════╗
+║         RAZORPAY INTEGRATION - SETUP CHECKLIST              ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 STEP 1: RUN SQL MIGRATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ ] 1. Open Supabase SQL Editor:
+    https://supabase.com/dashboard/project/bgbpppxfjjduhvrnlkxp/sql/new
+
+[ ] 2. Open file: supabase/migrations/20241116000001_razorpay_integration.sql
+
+[ ] 3. Copy ENTIRE content (Ctrl+A, Ctrl+C)
+
+[ ] 4. Paste in SQL Editor (Ctrl+V)
+
+[ ] 5. Click "Run" button
+
+[ ] 6. Verify success message appears
+
+
+📋 STEP 2: DEPLOY EDGE FUNCTION (Optional but Recommended)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ ] 1. Open terminal in project root
+
+[ ] 2. Run: supabase login
+
+[ ] 3. Run: supabase link --project-ref bgbpppxfjjduhvrnlkxp
+
+[ ] 4. Run: supabase functions deploy create-razorpay-order
+
+[ ] 5. Run: supabase secrets set RAZORPAY_KEY_ID=rzp_test_RgQlcr9Ia2zC4v
+
+[ ] 6. Run: supabase secrets set RAZORPAY_KEY_SECRET=l1qxbg36OOLomPHjuwYNELTr
+
+
+📋 STEP 3: TEST THE INTEGRATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ ] 1. Run: npm run dev
+
+[ ] 2. Open: http://localhost:8080
+
+[ ] 3. Add products to cart
+
+[ ] 4. Go to checkout page
+
+[ ] 5. Add/select delivery address
+
+[ ] 6. Click "Proceed to Payment"
+
+[ ] 7. Use test card:
+    Card Number: 4111 1111 1111 1111
+    CVV: 123
+    Expiry: 12/25
+    Name: Test User
+
+[ ] 8. Complete payment
+
+[ ] 9. Verify success page appears
+
+[ ] 10. Check order in Supabase database (orders table)
+
+
+🎯 VERIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[ ] Payment modal opens correctly
+[ ] Payment processes successfully
+[ ] Order created in database
+[ ] Order status is "confirmed"
+[ ] Payment status is "paid"
+[ ] Cart is cleared after payment
+[ ] Success page displays order number
+[ ] No console errors
+
+
+🐛 IF SOMETHING GOES WRONG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Check browser console (F12) for errors
+2. Check Supabase logs
+3. Verify SQL functions exist in database
+4. Check .env file has correct keys
+5. Read RAZORPAY_SETUP.md for detailed troubleshooting
+
+
+📚 DOCUMENTATION FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- RAZORPAY_INTEGRATION_SUMMARY.md - Complete overview
+- RAZORPAY_SETUP.md - Detailed setup guide
+- This file - Quick checklist
+
+
+✅ DONE!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Once all checkboxes are ticked, your Razorpay integration is complete!
+
+🎉 Happy selling!

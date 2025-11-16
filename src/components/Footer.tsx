@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
-import logo from "@/assets/logo.png";
+// Logo is in public directory
 
 export const Footer = () => {
   return (
@@ -9,7 +9,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <img src={logo} alt="Bro Hood" className="h-16 w-auto" />
+            <img src="/logo.png" alt="Bro Hood" className="h-16 w-auto" />
             <p className="text-sm text-muted-foreground">
               Premium men's fashion for the modern gentleman. Elevate your style with Bro Hood.
             </p>
@@ -91,18 +91,18 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                <span>123 Fashion Street, Mumbai, Maharashtra 400001</span>
+                <span>Bangalore, Karnataka, India</span>
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-5 w-5 flex-shrink-0" />
-                <a href="tel:+911234567890" className="hover:text-primary transition-colors">
-                  +91 123 456 7890
+                <a href="tel:+916364145515" className="hover:text-primary transition-colors">
+                  +91 6364 145 515
                 </a>
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-5 w-5 flex-shrink-0" />
-                <a href="mailto:support@brohood.com" className="hover:text-primary transition-colors">
-                  support@brohood.com
+                <a href="mailto:brohoodmensfashionupdate@gmail.com" className="hover:text-primary transition-colors">
+                  brohoodmensfashionupdate@gmail.com
                 </a>
               </li>
             </ul>

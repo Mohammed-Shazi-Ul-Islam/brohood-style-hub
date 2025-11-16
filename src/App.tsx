@@ -14,8 +14,12 @@ import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import Account from "./pages/Account";
+import Account from "./pages/AccountNew";
+import Wishlist from "./pages/Wishlist";
 import Login from "./pages/Login";
+import OrderSuccess from "./pages/OrderSuccess";
+import TestRazorpay from "./pages/TestRazorpay";
+import Orders from "./pages/Orders";
 
 import { WorkingAdminDashboard } from "./pages/admin/WorkingAdminDashboard";
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -24,7 +28,17 @@ import { AdminProducts } from "./pages/admin/Products";
 import { AdminCategories } from "./pages/admin/Categories";
 import { AdminLogin } from "./components/auth/AdminLogin";
 import { TestAdmin } from "./pages/admin/TestAdmin";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminCustomers from "./pages/admin/AdminCustomers";
 import NotFound from "./pages/NotFound";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
+import Shipping from "./pages/Shipping";
+import Returns from "./pages/Returns";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import SizeGuide from "./pages/SizeGuide";
 
 const queryClient = new QueryClient();
 
@@ -43,8 +57,8 @@ const App = () => (
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/categories" element={<AdminCategories />} />
-          <Route path="/admin/orders" element={<WorkingAdminDashboard />} />
-          <Route path="/admin/customers" element={<WorkingAdminDashboard />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/customers" element={<AdminCustomers />} />
           <Route path="/admin/settings" element={<WorkingAdminDashboard />} />
 
           {/* ========================= PUBLIC ROUTES ========================= */}
@@ -138,18 +152,69 @@ const App = () => (
             }
           />
 
+          <Route path="/account" element={
+            <AuthProvider>
+              <CartProvider>
+                <Account />
+              </CartProvider>
+            </AuthProvider>
+          } />
+
+          <Route path="/wishlist" element={
+            <AuthProvider>
+              <CartProvider>
+                <div className="flex flex-col min-h-screen">
+                  <Navbar />
+                  <main className="flex-1">
+                    <Wishlist />
+                  </main>
+                  <Footer />
+                </div>
+              </CartProvider>
+            </AuthProvider>
+          } />
+
           <Route
-            path="/account"
+            path="/orders"
             element={
               <AuthProvider>
-                <main className="flex-1">
-                  <Account />
-                </main>
+                <CartProvider>
+                  <Orders />
+                </CartProvider>
               </AuthProvider>
             }
           />
 
           <Route path="/login" element={<Login />} />
+
+          <Route path="/test-razorpay" element={<TestRazorpay />} />
+
+          <Route
+            path="/order-success"
+            element={
+              <AuthProvider>
+                <CartProvider>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-1">
+                      <OrderSuccess />
+                    </main>
+                    <Footer />
+                  </div>
+                </CartProvider>
+              </AuthProvider>
+            }
+          />
+
+          {/* ========================= INFO PAGES ========================= */}
+          <Route path="/contact" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><Contact /></main><Footer /></div></CartProvider></AuthProvider>} />
+          <Route path="/about" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><About /></main><Footer /></div></CartProvider></AuthProvider>} />
+          <Route path="/faq" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><FAQ /></main><Footer /></div></CartProvider></AuthProvider>} />
+          <Route path="/shipping" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><Shipping /></main><Footer /></div></CartProvider></AuthProvider>} />
+          <Route path="/returns" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><Returns /></main><Footer /></div></CartProvider></AuthProvider>} />
+          <Route path="/terms" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><Terms /></main><Footer /></div></CartProvider></AuthProvider>} />
+          <Route path="/privacy" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><Privacy /></main><Footer /></div></CartProvider></AuthProvider>} />
+          <Route path="/size-guide" element={<AuthProvider><CartProvider><div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><SizeGuide /></main><Footer /></div></CartProvider></AuthProvider>} />
 
           {/* ========================= FALLBACK ========================= */}
           <Route path="*" element={<NotFound />} />

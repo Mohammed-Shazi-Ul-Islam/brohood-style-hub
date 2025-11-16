@@ -49,7 +49,7 @@ const Home = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-black backdrop-blur-sm px-6 sm:px-8 py-4 sm:py-6 h-auto rounded-none tracking-wide font-semibold text-sm sm:text-base"
+                  className="w-full sm:w-auto border-2 border-white bg-white/10 text-white hover:bg-white hover:text-black backdrop-blur-sm px-6 sm:px-8 py-4 sm:py-6 h-auto rounded-none tracking-wide font-semibold text-sm sm:text-base"
                 >
                   NEW ARRIVALS
                 </Button>
@@ -205,6 +205,114 @@ const Home = () => {
                 View All Featured
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Visit Our Store Section */}
+      <section className="py-16 sm:py-20 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12">
+            <p className="text-gold text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] font-medium mb-2 sm:mb-4">
+              Experience In Person
+            </p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold mb-3 sm:mb-4 text-black">
+              Visit Our Store
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg px-4">
+              Come experience our premium collection in person. Our expert stylists are ready to help you find the perfect look.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
+              {/* Store Info */}
+              <div className="space-y-4 sm:space-y-6 order-2 md:order-1">
+                <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg border border-gray-100">
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold mb-4 sm:mb-6 text-black">
+                    BroHood Men's Fashion
+                  </h3>
+                  
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-black mb-1">Address</p>
+                        <p className="text-sm sm:text-base text-gray-600">
+                          Bangalore, Karnataka, India
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-black mb-1">Store Hours</p>
+                        <p className="text-sm sm:text-base text-gray-600">
+                          Mon - Sat: 10:00 AM - 9:00 PM<br />
+                          Sunday: 11:00 AM - 8:00 PM
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg className="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-black mb-1">Contact</p>
+                        <p className="text-sm sm:text-base text-gray-600">
+                          Phone: +91 96862 20727<br />
+                          Email: info@brohood.com
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t border-gray-100">
+                    <a
+                      href="https://www.google.com/maps/place/Brohoodmensfashionupdate/@12.9050919,77.6299754,17z"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block"
+                    >
+                      <Button className="w-full sm:w-auto bg-gold hover:bg-gold-dark text-black font-semibold">
+                        Get Directions
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Google Maps */}
+              <div className="order-1 md:order-2">
+                <div className="rounded-lg overflow-hidden shadow-2xl border-4 border-white">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3889.0408960630966!2d77.62997537464967!3d12.90509188740416!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae151e228deddd%3A0xe2de04ce2553ff67!2sBrohoodmensfashionupdate!5e0!3m2!1sen!2sin!4v1763308177024!5m2!1sen!2sin"
+                    width="100%"
+                    height="450"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="w-full h-[300px] sm:h-[400px] md:h-[450px]"
+                    title="BroHood Store Location"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

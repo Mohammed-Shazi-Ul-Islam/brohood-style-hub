@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, Heart, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import logo from "@/assets/logo.png";
+// Logo is in public directory
 import { useCart } from "@/context/CartContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = [
   "All",
@@ -20,9 +21,43 @@ const categories = [
 ];
 
 export const Navbar = () => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [user, setUser] = useState<any>(null);
   const { cartCount } = useCart();
+
+  useEffect(() => {
+    checkUser();
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+    });
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setUser(session?.user || null);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setSearchOpen(false);
+    }
+  };
+
+  const getUserInitial = () => {
+    if (user?.user_metadata?.first_name) {
+      return user.user_metadata.first_name.charAt(0).toUpperCase();
+    }
+    return user?.email?.charAt(0).toUpperCase() || 'U';
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -31,19 +66,21 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={logo} alt="Bro Hood" className="h-12 lg:h-16 w-auto" />
+            <img src="/logo.png" alt="Bro Hood" className="h-12 lg:h-16 w-auto" />
           </Link>
 
           {/* Desktop Search */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8">
-            <div className="relative w-full">
+            <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="search"
                 placeholder="Search for products, brands..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 bg-gray-50 border-gray-200 text-black placeholder:text-gray-500 focus-visible:ring-black"
               />
-            </div>
+            </form>
           </div>
 
           {/* Desktop Icons */}
@@ -70,12 +107,38 @@ export const Navbar = () => {
               </Button>
             </Link>
 
-            {/* Account */}
-            <Link to="/account">
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
+            {/* Account Dropdown */}
+            <div className="relative group">
+              {user ? (
+                <>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                      {getUserInitial()}
+                    </div>
+                  </Button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="px-4 py-3 border-b">
+                      <p className="text-sm font-semibold truncate">{user.email}</p>
+                    </div>
+                    <Link to="/account" className="block px-4 py-2 hover:bg-gray-50 text-sm">
+                      My Account
+                    </Link>
+                    <Link to="/orders" className="block px-4 py-2 hover:bg-gray-50 text-sm">
+                      My Orders
+                    </Link>
+                    <Link to="/wishlist" className="block px-4 py-2 hover:bg-gray-50 text-sm">
+                      Wishlist
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <Link to="/login">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Mobile Icons */}
@@ -115,6 +178,13 @@ export const Navbar = () => {
               <Input
                 type="search"
                 placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch(e as any);
+                  }
+                }}
                 className="w-full pl-10"
               />
             </div>

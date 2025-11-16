@@ -104,7 +104,7 @@ export function AIChatbot() {
 
   const generateAIResponse = async (query: string): Promise<{ text: string; suggestions?: string[]; products?: any[]; orders?: any[] }> => {
     const lowerQuery = query.toLowerCase();
-    
+
     // Get user session
     const { data: { session } } = await supabase.auth.getSession();
     const userId = session?.user?.id;
@@ -149,10 +149,10 @@ export function AIChatbot() {
     }
 
     // 4. For STYLE ADVICE - Use Gemini AI
-    if (lowerQuery.includes('style') || lowerQuery.includes('outfit') || lowerQuery.includes('wear') || 
-        lowerQuery.includes('match') || lowerQuery.includes('party') || lowerQuery.includes('wedding') ||
-        lowerQuery.includes('beach') || lowerQuery.includes('casual') || lowerQuery.includes('formal') ||
-        lowerQuery.includes('gift') || lowerQuery.includes('occasion') || lowerQuery.includes('look')) {
+    if (lowerQuery.includes('style') || lowerQuery.includes('outfit') || lowerQuery.includes('wear') ||
+      lowerQuery.includes('match') || lowerQuery.includes('party') || lowerQuery.includes('wedding') ||
+      lowerQuery.includes('beach') || lowerQuery.includes('casual') || lowerQuery.includes('formal') ||
+      lowerQuery.includes('gift') || lowerQuery.includes('occasion') || lowerQuery.includes('look')) {
       return await getGeminiResponse(query, userId, lowerQuery);
     }
 
@@ -271,9 +271,9 @@ export function AIChatbot() {
         throw new Error('API key not configured');
       }
       console.log('✅ Gemini API key loaded, calling AI...');
-      
+
       const lower = lowerQuery || query.toLowerCase();
-      
+
       // Check if asking about orders
       if (lower.includes('order') || lower.includes('track') || lower.includes('delivery')) {
         const orderResult = await handleOrderQuery(userId);
@@ -288,7 +288,7 @@ export function AIChatbot() {
         .eq('status', 'active')
         .limit(20);
 
-      const productContext = allProducts?.map((p: any) => 
+      const productContext = allProducts?.map((p: any) =>
         `${p.name} (₹${p.price}) in ${p.category?.name}`
       ).join(', ') || '';
 
@@ -325,21 +325,21 @@ Products available: ${productContext}
 
 Keep responses 2-3 paragraphs, friendly, sales-focused.`;
 
-      const model = genAI.getGenerativeModel({ 
+      const model = genAI.getGenerativeModel({
         model: 'gemini-pro',
         generationConfig: {
           temperature: 0.8,
           maxOutputTokens: 400,
         }
       });
-      
+
       console.log('🤖 Calling Gemini AI with query:', query);
-      
+
       const prompt = `${systemPrompt}\n\n---\n\nCustomer asks: "${query}"\n\nYour response:`;
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const aiText = response.text();
-      
+
       console.log('✅ Gemini AI response received:', aiText.substring(0, 100) + '...');
 
       // Update conversation history
@@ -386,7 +386,7 @@ Keep responses 2-3 paragraphs, friendly, sales-focused.`;
       console.error('❌ Gemini AI Error:', error);
       console.error('Error details:', error.message);
       console.error('Full error:', JSON.stringify(error, null, 2));
-      
+
       // If API key issue, show specific message
       if (error.message?.includes('API key') || error.message?.includes('API_KEY')) {
         return {
@@ -394,7 +394,7 @@ Keep responses 2-3 paragraphs, friendly, sales-focused.`;
           suggestions: ['Find products', 'Style advice', 'Track order', 'Payment info']
         };
       }
-      
+
       return {
         text: "I'm here to help with men's fashion! Ask me about:\n\n🛍️ Finding products\n👔 Style combinations\n📦 Order tracking\n💳 Payments\n🆘 Support\n\nWhat would you like to know?",
         suggestions: ['Find products', 'Style advice', 'Track order', 'Payment info']
@@ -458,7 +458,7 @@ Keep responses 2-3 paragraphs, friendly, sales-focused.`;
               </div>
               <div>
                 <h3 className="font-semibold text-sm sm:text-base">BroHood AI Assistant</h3>
-                <p className="text-xs text-gray-300">Powered by Gemini AI</p>
+                <p className="text-xs text-gray-300">Your Style Companion</p>
               </div>
             </div>
             <Button
@@ -503,11 +503,10 @@ Keep responses 2-3 paragraphs, friendly, sales-focused.`;
                 >
                   <div className="max-w-[85%] space-y-2">
                     <div
-                      className={`rounded-2xl px-3 py-2 sm:px-4 ${
-                        message.sender === 'user'
-                          ? 'bg-black text-white'
-                          : 'bg-gray-100 text-gray-900'
-                      }`}
+                      className={`rounded-2xl px-3 py-2 sm:px-4 ${message.sender === 'user'
+                        ? 'bg-black text-white'
+                        : 'bg-gray-100 text-gray-900'
+                        }`}
                     >
                       <p className="text-xs sm:text-sm whitespace-pre-line">{message.text}</p>
                     </div>
@@ -619,9 +618,6 @@ Keep responses 2-3 paragraphs, friendly, sales-focused.`;
                 <Send className="h-4 w-4" />
               </Button>
             </form>
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              Powered by Google Gemini AI
-            </p>
           </div>
         </div>
       )}

@@ -1,0 +1,215 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    RAZORPAY PAYMENT FLOW DIAGRAM                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+                              USER JOURNEY
+                              ════════════
+
+    ┌─────────────┐
+    │   Browse    │
+    │  Products   │
+    └──────┬──────┘
+           │
+           ▼
+    ┌─────────────┐
+    │  Add to     │
+    │   Cart      │
+    └──────┬──────┘
+           │
+           ▼
+    ┌─────────────┐
+    │  Checkout   │
+    │    Page     │
+    └──────┬──────┘
+           │
+           ▼
+    ┌─────────────┐
+    │   Select    │
+    │  Address    │
+    └──────┬──────┘
+           │
+           ▼
+    ┌─────────────┐
+    │   Proceed   │
+    │ to Payment  │◄─────────────────────────────────┐
+    └──────┬──────┘                                  │
+           │                                         │
+           │                                         │
+           ▼                                         │
+                                                     │
+                    BACKEND PROCESSING               │
+                    ══════════════════               │
+                                                     │
+    ┌──────────────────────────────────────┐        │
+    │  1. Create Order in Database         │        │
+    │     - Status: pending                │        │
+    │     - Payment Status: pending        │        │
+    │     - Save items & address           │        │
+    └──────────────┬───────────────────────┘        │
+                   │                                 │
+                   ▼                                 │
+    ┌──────────────────────────────────────┐        │
+    │  2. Call Edge Function               │        │
+    │     - Create Razorpay Order          │        │
+    │     - Get Razorpay Order ID          │        │
+    └──────────────┬───────────────────────┘        │
+                   │                                 │
+                   ▼                                 │
+    ┌──────────────────────────────────────┐        │
+    │  3. Initialize Razorpay Modal        │        │
+    │     - Load Razorpay SDK              │        │
+    │     - Open payment modal             │        │
+    └──────────────┬───────────────────────┘        │
+                   │                                 │
+                   │                                 │
+                   ▼                                 │
+                                                     │
+                    USER PAYMENT                     │
+                    ════════════                     │
+                                                     │
+    ┌──────────────────────────────────────┐        │
+    │  User Enters Card Details            │        │
+    │  - Card Number                       │        │
+    │  - CVV                               │        │
+    │  - Expiry Date                       │        │
+    └──────────────┬───────────────────────┘        │
+                   │                                 │
+                   ▼                                 │
+    ┌──────────────────────────────────────┐        │
+    │  Razorpay Processes Payment          │        │
+    │  (Secure on Razorpay servers)        │        │
+    └──────────────┬───────────────────────┘        │
+                   │                                 │
+                   │                                 │
+            ┌──────┴──────┐                         │
+            │             │                         │
+         SUCCESS       FAILURE                      │
+            │             │                         │
+            │             └─────────────────────────┘
+            │                                       
+            ▼                                       
+                                                    
+         PAYMENT SUCCESS                            
+         ═══════════════                            
+                                                    
+    ┌──────────────────────────────────────┐       
+    │  1. Verify Payment Signature         │       
+    │     - Check Razorpay signature       │       
+    └──────────────┬───────────────────────┘       
+                   │                                
+                   ▼                                
+    ┌──────────────────────────────────────┐       
+    │  2. Update Database                  │       
+    │     - Order Status: confirmed        │       
+    │     - Payment Status: paid           │       
+    │     - Save payment IDs               │       
+    └──────────────┬───────────────────────┘       
+                   │                                
+                   ▼                                
+    ┌──────────────────────────────────────┐       
+    │  3. Clear Cart                       │       
+    │     - Remove from localStorage       │       
+    └──────────────┬───────────────────────┘       
+                   │                                
+                   ▼                                
+    ┌──────────────────────────────────────┐       
+    │  4. Redirect to Success Page         │       
+    │     - Show order number              │       
+    │     - Display confirmation           │       
+    └──────────────────────────────────────┘       
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                            DATABASE TABLES
+                            ═══════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ORDERS TABLE                                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  id                  UUID (Primary Key)                                     │
+│  order_number        TEXT (e.g., BH20241116001)                            │
+│  customer_id         UUID (Foreign Key → auth.users)                       │
+│  status              order_status (pending → confirmed)                     │
+│  payment_status      payment_status (pending → paid)                       │
+│  total_amount        DECIMAL                                                │
+│  shipping_address    JSONB                                                  │
+│  billing_address     JSONB                                                  │
+│  created_at          TIMESTAMP                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ORDER_ITEMS TABLE                                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  id                  UUID (Primary Key)                                     │
+│  order_id            UUID (Foreign Key → orders)                           │
+│  product_id          UUID (Foreign Key → products)                         │
+│  quantity            INTEGER                                                │
+│  unit_price          DECIMAL                                                │
+│  total_price         DECIMAL                                                │
+│  product_snapshot    JSONB (Product details at time of order)              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  PAYMENTS TABLE                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  id                     UUID (Primary Key)                                  │
+│  order_id               UUID (Foreign Key → orders)                        │
+│  razorpay_order_id      TEXT (From Razorpay)                               │
+│  razorpay_payment_id    TEXT (From Razorpay)                               │
+│  razorpay_signature     TEXT (For verification)                            │
+│  amount                 DECIMAL                                             │
+│  status                 payment_status (pending/paid/failed)               │
+│  created_at             TIMESTAMP                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                            KEY FUNCTIONS
+                            ═════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  create_order_with_razorpay()                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Creates order record                                                     │
+│  • Inserts order items                                                      │
+│  • Creates payment record                                                   │
+│  • Returns order_id, order_number, razorpay_order_id                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  update_payment_status()                                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Updates payment record with Razorpay IDs                                 │
+│  • Updates order status to 'confirmed'                                      │
+│  • Updates payment status to 'paid'                                         │
+│  • Returns success boolean                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  get_order_details()                                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • Fetches complete order information                                       │
+│  • Includes order items with product details                                │
+│  • Includes payment information                                             │
+│  • Returns JSONB object                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                            SECURITY FEATURES
+                            ═════════════════
+
+✓ Row Level Security (RLS) enabled on all tables
+✓ Users can only view/create their own orders
+✓ Admins can view all orders
+✓ Payment signature verification
+✓ Secure edge function with environment secrets
+✓ Server-side Razorpay API calls (not exposed to client)
+✓ Authentication required for all operations
+
+
+═══════════════════════════════════════════════════════════════════════════════
