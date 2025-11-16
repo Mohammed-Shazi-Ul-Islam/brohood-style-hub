@@ -2,11 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    
+    <!-- ✅ Performance: Preconnect to external domains -->
+    <link rel="preconnect" href="https://bgbpppxfjjduhvrnlkxp.supabase.co" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
+    
     <title>Bro Hood - Premium Men's Fashion | Elevate Your Style</title>
     <meta name="description" content="Discover premium men's fashion at Bro Hood. Shop stylish shirts, t-shirts, jeans, hoodies and more. Free shipping above ₹999. Easy returns." />
     <meta name="keywords" content="men's fashion, casual wear, premium clothing, shirts, jeans, t-shirts, hoodies, online shopping India" />
     <meta name="author" content="Bro Hood" />
+    
+    <!-- ✅ Theme color for mobile browsers -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <meta property="og:title" content="Bro Hood - Premium Men's Fashion" />
     <meta property="og:description" content="Discover premium men's fashion designed for the modern gentleman. Quality meets style." />
@@ -19,10 +30,43 @@
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
     <link rel="canonical" href="https://brohood.com" />
+    
+    <!-- ✅ Inline critical CSS for faster initial render -->
+    <style>
+      /* Critical CSS - Prevents flash of unstyled content */
+      #root { min-height: 100vh; }
+      body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+      .loader { 
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <!-- ✅ Loading indicator while JS loads -->
+    <div id="root">
+      <div class="loader">
+        <div class="spinner"></div>
+        <p style="color: #666; font-size: 14px;">Loading BroHood...</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

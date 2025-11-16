@@ -41,8 +41,8 @@ export function AIChatbot() {
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       addBotMessage(
-        "👋 Hi! I'm BroHood's AI fashion assistant. I can help you with:\n\n🛍️ Finding the perfect products\n👔 Style advice & outfit combinations\n📦 Order tracking\n💳 Payment information\n🆘 Customer support\n🏪 Store information\n\nWhat can I help you with today?",
-        ['Find products', 'Style advice', 'Track order', 'Payment options']
+        "👋 Hey! I'm BroHood's AI Assistant!\n\nI'm here to help you 24/7 with:\n\n🛍️ Product Search & Recommendations\n👔 Style Advice & Outfit Ideas\n📦 Order Tracking & Status\n🔄 Returns, Exchanges & Refunds\n💳 Payment Methods & Issues\n🚚 Shipping & Delivery Info\n📏 Size Guide & Fit Help\n🆘 Customer Support & Complaints\n🎁 Offers & Discounts\n\n💡 Just ask me anything!\n\nExamples:\n• \"Show me black hoodies under ₹2000\"\n• \"Track my order\"\n• \"How do I return an item?\"\n• \"What size should I get?\"\n• \"Style advice for a party\"\n\nWhat can I help you with? 😊",
+        ['Find products', 'Track order', 'Return policy', 'Style advice']
       );
     }
   }, [isOpen]);
@@ -110,41 +110,84 @@ export function AIChatbot() {
     const userId = session?.user?.id;
 
     // 1. Check if asking about ORDERS - fetch from database
-    if (lowerQuery.includes('order') || lowerQuery.includes('track') || lowerQuery.includes('delivery') || lowerQuery.includes('shipping')) {
-      return await handleOrderQuery(userId);
+    if (lowerQuery.includes('order') || lowerQuery.includes('track') || lowerQuery.includes('delivery') || 
+        lowerQuery.includes('shipping') || lowerQuery.includes('cancel') || lowerQuery.includes('refund') ||
+        lowerQuery.includes('return') || lowerQuery.includes('exchange') || lowerQuery.includes('money back') ||
+        lowerQuery.includes('not received') || lowerQuery.includes('delay') || lowerQuery.includes('late')) {
+      return await handleOrderQuery(userId, query);
     }
 
-    // 2. Check if FINDING PRODUCTS - fetch from database
+    // 2. Handle SHIPPING queries
+    if (lowerQuery.includes('shipping') || lowerQuery.includes('delivery time') || lowerQuery.includes('how long') ||
+        lowerQuery.includes('when will') || lowerQuery.includes('delivery charge')) {
+      return {
+        text: "🚚 Shipping & Delivery Information:\n\n📦 DELIVERY TIME:\n• Metro Cities: 3-5 business days\n• Other Cities: 5-7 business days\n• Remote Areas: 7-10 business days\n\n💰 SHIPPING CHARGES:\n• FREE on orders ₹999+\n• ₹99 on orders below ₹999\n• COD: Additional ₹50\n\n🚀 EXPRESS DELIVERY:\n• Available in select cities\n• 1-2 business days\n• ₹199 extra charge\n\n📍 TRACKING:\n• SMS & Email updates\n• Real-time tracking link\n• Delivery partner details\n\n📅 ORDER PROCESSING:\n• Orders placed before 2 PM: Same day dispatch\n• After 2 PM: Next day dispatch\n• Sundays & holidays: Next working day\n\n🎁 GIFT WRAPPING:\n• Available at checkout\n• ₹49 per item\n• Includes greeting card\n\n❓ DELIVERY ISSUES?\n• Wrong address: Update before dispatch\n• Not available: We'll call you\n• Delayed: Contact support\n\n💡 Track your order anytime!\nJust ask: \"Track my order\"",
+        suggestions: ['Track order', 'Free shipping', 'Express delivery', 'Browse products']
+      };
+    }
+
+    // 3. Handle QUALITY/DEFECT issues
+    if (lowerQuery.includes('defect') || lowerQuery.includes('damage') || lowerQuery.includes('quality') ||
+        lowerQuery.includes('broken') || lowerQuery.includes('torn') || lowerQuery.includes('wrong item') ||
+        lowerQuery.includes('different') || lowerQuery.includes('not as shown')) {
+      return {
+        text: "🛡️ Quality Issue / Wrong Item:\n\nWe sincerely apologize! 😔\n\n✅ IMMEDIATE RESOLUTION:\n\n1️⃣ WRONG ITEM RECEIVED:\n• Full refund or replacement\n• Free return pickup\n• Priority processing\n\n2️⃣ DEFECTIVE/DAMAGED:\n• Replacement guaranteed\n• No questions asked\n• Free pickup & delivery\n\n3️⃣ QUALITY ISSUES:\n• Full refund available\n• Exchange for better piece\n• Quality check on new item\n\n📸 WHAT TO DO:\n1. Take clear photos/video\n2. Email: support@brohood.com\n3. Include order number\n4. Describe the issue\n\n⚡ QUICK PROCESS:\n• Response: Within 4 hours\n• Pickup: Within 24 hours\n• Refund/Replacement: 3-5 days\n\n💰 REFUND OPTIONS:\n• Original payment method\n• Store credit (instant)\n• Exchange for any item\n\n🎁 COMPENSATION:\n• 10% discount on next order\n• Free shipping on replacement\n• Priority customer service\n\n📞 URGENT?\nCall: [Your number]\nEmail: support@brohood.com\n\nWe'll make it right! 💪",
+        suggestions: ['Contact support', 'Email support', 'Refund policy', 'Track order']
+      };
+    }
+
+    // 4. Handle COMPLAINTS
+    if (lowerQuery.includes('complaint') || lowerQuery.includes('unhappy') || lowerQuery.includes('disappointed') ||
+        lowerQuery.includes('bad service') || lowerQuery.includes('poor') || lowerQuery.includes('terrible')) {
+      return {
+        text: "🙏 We're Sorry to Hear That!\n\nYour satisfaction is our priority. Let's fix this!\n\n📝 REGISTER COMPLAINT:\n\n1️⃣ Email us:\nsupport@brohood.com\n• Include order number\n• Describe the issue\n• Attach photos if needed\n\n2️⃣ Call us:\n[Your phone number]\n• Speak to our team\n• Immediate assistance\n\n3️⃣ Chat with me:\n• Tell me your issue\n• I'll escalate immediately\n\n⚡ RESOLUTION TIME:\n• Acknowledgment: 2 hours\n• Investigation: 24 hours\n• Resolution: 48-72 hours\n\n💰 COMPENSATION:\nDepending on issue:\n• Full refund\n• Replacement\n• Store credit\n• Discount on next order\n\n🎯 COMMON ISSUES WE SOLVE:\n• Delivery delays\n• Product quality\n• Wrong items\n• Payment problems\n• Customer service\n\n📊 ESCALATION:\nNot satisfied with resolution?\n• Manager review available\n• Priority handling\n• Direct communication\n\n💡 We value your feedback!\nHelps us improve our service.\n\nHow can I help you right now?",
+        suggestions: ['Contact support', 'Track order', 'Refund policy', 'Quality issue']
+      };
+    }
+
+    // 5. Check if FINDING PRODUCTS - fetch from database
     if (lowerQuery.includes('show') || lowerQuery.includes('find') || lowerQuery.includes('search') || lowerQuery.includes('looking for')) {
       return await handleProductSearch(query, lowerQuery);
     }
 
-    // 3. Check if PAYMENT/SUPPORT queries - predefined responses
-    if (lowerQuery.includes('payment') || lowerQuery.includes('pay') || lowerQuery.includes('cod') || lowerQuery.includes('upi')) {
+    // 3. Handle OFFERS/DISCOUNTS
+    if (lowerQuery.includes('offer') || lowerQuery.includes('discount') || lowerQuery.includes('coupon') ||
+        lowerQuery.includes('promo') || lowerQuery.includes('deal') || lowerQuery.includes('sale')) {
       return {
-        text: "💳 Payment Methods We Accept:\n\n✅ Available:\n• UPI (Google Pay, PhonePe, Paytm)\n• Credit/Debit Cards\n• Net Banking\n• Wallets\n• Cash on Delivery (COD)\n\n🎁 Offers:\n• FIRST10 - 10% off first order\n• FREE999 - Free shipping on ₹999+\n\n💡 EMI available on orders ₹3000+",
-        suggestions: ['Current offers', 'COD info', 'UPI payment', 'Browse products']
+        text: "🎁 Current Offers & Discounts:\n\n🔥 ACTIVE DEALS:\n\n1️⃣ FIRST10\n• 10% OFF on first order\n• Min order: ₹999\n• Valid for new customers\n\n2️⃣ FREE999\n• FREE SHIPPING\n• On orders ₹999+\n• All India delivery\n\n3️⃣ SAVE500\n• ₹500 OFF\n• On orders ₹2999+\n• All products\n\n4️⃣ FLAT20\n• 20% OFF\n• On orders ₹1999+\n• Limited time\n\n💳 BANK OFFERS:\n• HDFC: 10% instant discount\n• ICICI: 15% on EMI\n• SBI: ₹200 cashback\n• Axis: No cost EMI\n\n🎯 CATEGORY DEALS:\n• Shirts: Buy 2 Get 1 Free\n• Jeans: Flat 30% OFF\n• Hoodies: Up to 40% OFF\n• Sneakers: Buy 1 Get 1 at 50%\n\n📅 UPCOMING SALES:\n• Weekend Sale: Every Sat-Sun\n• Flash Sale: Every Wed 12-6 PM\n• Festive Sale: [Dates]\n\n💡 HOW TO USE:\n1. Add items to cart\n2. Enter code at checkout\n3. Discount applied automatically\n\n🔔 WANT MORE DEALS?\n• Subscribe to newsletter\n• Follow us on Instagram\n• Enable notifications\n\n⚠️ TERMS:\n• One code per order\n• Cannot combine offers\n• Check expiry dates\n• Some exclusions apply\n\n🛍️ Start shopping now!",
+        suggestions: ['Browse products', 'New arrivals', 'Best sellers', 'Payment methods']
       };
     }
 
-    if (lowerQuery.includes('return') || lowerQuery.includes('exchange') || lowerQuery.includes('refund')) {
+    // 4. Check if PAYMENT/SUPPORT queries - predefined responses
+    if (lowerQuery.includes('payment method') || lowerQuery.includes('how to pay') || lowerQuery.includes('cod') || 
+        lowerQuery.includes('upi') || lowerQuery.includes('card') || lowerQuery.includes('wallet')) {
       return {
-        text: "🔄 Return & Exchange Policy:\n\n✅ Easy Returns:\n• 7-day return window\n• Free return pickup\n• Full refund or exchange\n\n📋 Conditions:\n• Unused with tags\n• Original packaging\n\n🆘 Need help? Contact: support@brohood.com",
-        suggestions: ['Contact support', 'Track order', 'Browse products']
+        text: "💳 Payment Methods & Information:\n\n✅ WE ACCEPT:\n\n💰 UPI:\n• Google Pay, PhonePe, Paytm\n• BHIM, Amazon Pay\n• Instant confirmation\n\n💳 CARDS:\n• Visa, Mastercard, RuPay\n• Credit & Debit cards\n• Secure 3D authentication\n\n🏦 NET BANKING:\n• All major banks\n• Instant payment\n\n👛 WALLETS:\n• Paytm, PhonePe, Mobikwik\n• Amazon Pay, Freecharge\n\n💵 CASH ON DELIVERY (COD):\n• Available on orders under ₹5000\n• ₹50 COD charges apply\n• Pay cash to delivery person\n\n💡 EMI OPTIONS:\n• Available on orders ₹3000+\n• 3, 6, 9, 12 months\n• No cost EMI on select cards\n\n🎁 CURRENT OFFERS:\n• FIRST10 - 10% off first order\n• FREE999 - Free shipping on ₹999+\n• SAVE500 - ₹500 off on ₹2999+\n\n🔒 SECURITY:\n• SSL encrypted payments\n• PCI DSS compliant\n• Razorpay secure gateway\n• No card details stored\n\n❓ PAYMENT FAILED?\n• Check bank balance\n• Verify OTP/PIN\n• Try different method\n• Contact: support@brohood.com\n\n💰 REFUNDS:\n• Original payment method\n• 5-7 business days\n• Instant for UPI (1-3 days)",
+        suggestions: ['Current offers', 'COD charges', 'EMI options', 'Browse products']
       };
     }
 
-    if (lowerQuery.includes('store') || lowerQuery.includes('contact') || lowerQuery.includes('location')) {
+    if (lowerQuery.includes('return policy') || lowerQuery.includes('exchange policy') || lowerQuery.includes('refund policy')) {
       return {
-        text: "🏪 BroHood Store:\n\n📍 Store: BROHOOD\n📍 Address: [To be updated]\n⏰ Timing: [To be updated]\n\n📞 Contact:\n• Email: support@brohood.com\n• Phone: [To be updated]\n\n💡 Shop online 24/7!",
-        suggestions: ['Browse products', 'Contact us', 'Shipping info']
+        text: "🔄 Return, Exchange & Refund Policy:\n\n✅ RETURNS (7 Days):\n• Free return pickup 🚚\n• Full refund to original payment method\n• Processed within 5-7 business days\n\n🔄 EXCHANGES (7 Days):\n• Size/color exchange available\n• Free pickup & delivery\n• Subject to stock availability\n\n💰 REFUNDS:\n• Cancelled orders: Immediate\n• Returns: 5-7 business days\n• Failed payments: 3-5 business days\n\n📋 CONDITIONS:\n• Unused with original tags ✅\n• Original packaging intact ✅\n• No damage or alterations ✅\n• Invoice/receipt required ✅\n\n❌ NON-RETURNABLE:\n• Innerwear & socks\n• Customized items\n• Sale items (final sale)\n\n🆘 Questions?\nEmail: support@brohood.com\nPhone: [Your number]\n\n💡 We're here to help!",
+        suggestions: ['Track my order', 'Contact support', 'Browse products', 'Size guide']
       };
     }
 
-    if (lowerQuery.includes('size') || lowerQuery.includes('fit') || lowerQuery.includes('measurement')) {
+    if (lowerQuery.includes('store') || lowerQuery.includes('contact') || lowerQuery.includes('location') || 
+        lowerQuery.includes('support') || lowerQuery.includes('help') || lowerQuery.includes('customer service')) {
       return {
-        text: "📏 Size Guide:\n\n👕 Shirts/T-Shirts:\n• S: 5'4\"-5'7\", Chest 36-38\", Weight 50-60kg\n• M: 5'7\"-5'10\", Chest 38-40\", Weight 60-70kg\n• L: 5'10\"-6'1\", Chest 40-42\", Weight 70-80kg\n• XL: 6'1\"+, Chest 42-44\", Weight 80kg+\n\n👖 Jeans: Waist size in inches (28-38)\n\n💡 Check product page for specific measurements!",
-        suggestions: ['Find products', 'Style advice', 'Browse all']
+        text: "🏪 BroHood - Contact & Support:\n\n📧 EMAIL:\nsupport@brohood.com\n(Response within 24 hours)\n\n📞 PHONE:\n[Your phone number]\n(Mon-Sat: 10 AM - 7 PM)\n\n💬 LIVE CHAT:\nRight here! I'm available 24/7\n\n📍 STORE ADDRESS:\n[Your store address]\n[City, State - PIN]\n\n⏰ STORE HOURS:\nMon-Sat: 10 AM - 8 PM\nSunday: 11 AM - 6 PM\n\n🌐 ONLINE:\nShop 24/7 at brohood.com\n\n📱 SOCIAL MEDIA:\nInstagram: @brohood\nFacebook: /brohood\n\n🆘 URGENT ISSUES?\n• Order problems\n• Payment issues\n• Delivery delays\n→ Email us immediately!\n\n💡 I can help you right now with:\n• Order tracking\n• Product search\n• Returns/refunds\n• Style advice\n\nWhat do you need help with?",
+        suggestions: ['Track order', 'Return policy', 'Browse products', 'Payment info']
+      };
+    }
+
+    if (lowerQuery.includes('size') || lowerQuery.includes('fit') || lowerQuery.includes('measurement') || 
+        lowerQuery.includes('sizing') || lowerQuery.includes('what size')) {
+      return {
+        text: "📏 Complete Size Guide:\n\n👕 SHIRTS & T-SHIRTS:\n\nS (Small):\n• Height: 5'4\" - 5'7\"\n• Chest: 36-38 inches\n• Weight: 50-60 kg\n• Shoulder: 16-17 inches\n\nM (Medium):\n• Height: 5'7\" - 5'10\"\n• Chest: 38-40 inches\n• Weight: 60-70 kg\n• Shoulder: 17-18 inches\n\nL (Large):\n• Height: 5'10\" - 6'1\"\n• Chest: 40-42 inches\n• Weight: 70-80 kg\n• Shoulder: 18-19 inches\n\nXL (Extra Large):\n• Height: 6'1\" - 6'3\"\n• Chest: 42-44 inches\n• Weight: 80-90 kg\n• Shoulder: 19-20 inches\n\nXXL:\n• Height: 6'3\"+\n• Chest: 44-46 inches\n• Weight: 90+ kg\n• Shoulder: 20-21 inches\n\n👖 JEANS & TROUSERS:\n• Waist size in inches: 28-38\n• Length: Regular (32\"), Long (34\")\n\n🧥 JACKETS & HOODIES:\n• Same as shirts (S-XXL)\n• Relaxed fit for layering\n\n👟 FOOTWEAR:\n• UK sizes: 6-11\n• US sizes: 7-12\n• EU sizes: 40-45\n\n💡 FIT TYPES:\n• Slim Fit: Fitted, modern cut\n• Regular Fit: Classic, comfortable\n• Relaxed Fit: Loose, casual\n\n📐 HOW TO MEASURE:\n1. Chest: Around fullest part\n2. Waist: Around natural waistline\n3. Shoulder: Across back, seam to seam\n4. Length: From shoulder to hem\n\n🔄 WRONG SIZE?\n• Free exchange within 7 days\n• Size up/down available\n• Check product page for exact measurements\n\n❓ STILL CONFUSED?\nAsk me: \"What size for 5'9\" and 70kg?\"\nI'll recommend the perfect fit!",
+        suggestions: ['Find products', 'Exchange policy', 'Style advice', 'Browse all']
       };
     }
 
@@ -160,17 +203,19 @@ export function AIChatbot() {
     return await getGeminiResponse(query, userId, lowerQuery);
   };
 
-  const handleOrderQuery = async (userId?: string) => {
+  const handleOrderQuery = async (userId?: string, query?: string) => {
+    const lowerQuery = query?.toLowerCase() || '';
+
     if (!userId) {
       return {
-        text: "📦 To track your orders, please log in first!\n\nOnce logged in, I can show you:\n• All your orders\n• Order status\n• Tracking information\n• Delivery estimates",
-        suggestions: ['Log in', 'Browse products', 'Continue shopping']
+        text: "📦 To track your orders, please log in first!\n\nOnce logged in, I can help you with:\n• Order tracking & status\n• Delivery estimates\n• Order cancellation\n• Returns & refunds\n• Payment issues\n\n👉 Please log in to continue!",
+        suggestions: ['Log in', 'Browse products', 'Return policy', 'Payment info']
       };
     }
 
     try {
-      const { data: orders } = await supabase
-        .from('orders')
+      const { data: orders } = await (supabase
+        .from('orders') as any)
         .select(`
           *,
           items:order_items(
@@ -182,22 +227,103 @@ export function AIChatbot() {
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (orders && orders.length > 0) {
+      if (!orders || orders.length === 0) {
         return {
-          text: `📦 Here are your recent orders:\n\nI found ${orders.length} order(s). Click on any order below for details!`,
-          orders: orders,
-          suggestions: ['Order details', 'Return/Exchange', 'Contact support']
-        };
-      } else {
-        return {
-          text: "📦 You don't have any orders yet!\n\n🛍️ Ready to shop? Browse our collection!\n\n✨ First order? Get 10% off with code: FIRST10",
-          suggestions: ['Browse products', 'New arrivals', 'Best sellers']
+          text: "📦 You don't have any orders yet!\n\n🛍️ Ready to start shopping?\n\n✨ Special Offers:\n• FIRST10 - 10% off your first order\n• FREE999 - Free shipping on orders ₹999+\n\n💡 Browse our latest collection now!",
+          suggestions: ['Browse products', 'New arrivals', 'Best sellers', 'Offers']
         };
       }
-    } catch (error) {
+
+      // Check for specific order queries
+      const latestOrder = orders[0];
+      const orderAge = Math.floor((Date.now() - new Date(latestOrder.created_at).getTime()) / (1000 * 60 * 60 * 24));
+
+      // Handle specific queries about orders
+      if (lowerQuery.includes('cancel')) {
+        if (latestOrder.status === 'pending' || latestOrder.status === 'confirmed') {
+          return {
+            text: `🚫 Order Cancellation:\n\nYour latest order #${latestOrder.order_number} can be cancelled!\n\n✅ Status: ${latestOrder.status}\n💰 Amount: ₹${latestOrder.total_amount}\n📅 Placed: ${new Date(latestOrder.created_at).toLocaleDateString()}\n\n📋 To cancel:\n1. Go to Account → My Orders\n2. Select this order\n3. Click "Cancel Order"\n\n💡 Refund will be processed within 5-7 business days.\n\nNeed help? Contact: support@brohood.com`,
+            orders: [latestOrder],
+            suggestions: ['Go to account', 'Refund policy', 'Contact support']
+          };
+        } else {
+          return {
+            text: `⚠️ Order Cancellation:\n\nYour order #${latestOrder.order_number} is ${latestOrder.status}.\n\n❌ Cannot cancel orders that are:\n• Processing\n• Shipped\n• Delivered\n\n🔄 But you can:\n• Return within 7 days of delivery\n• Get full refund or exchange\n\n📞 Need urgent help? Contact: support@brohood.com`,
+            orders: [latestOrder],
+            suggestions: ['Return policy', 'Contact support', 'Track order']
+          };
+        }
+      }
+
+      if (lowerQuery.includes('delay') || lowerQuery.includes('late') || lowerQuery.includes('not received')) {
+        const deliveryDays = latestOrder.status === 'delivered' ? 0 : 5 - orderAge;
+        return {
+          text: `📦 Order Delivery Status:\n\nOrder #${latestOrder.order_number}\n\n📊 Current Status: ${latestOrder.status.toUpperCase()}\n📅 Ordered: ${new Date(latestOrder.created_at).toLocaleDateString()}\n⏱️ Days since order: ${orderAge}\n\n${latestOrder.status === 'delivered' 
+            ? '✅ Your order has been delivered!' 
+            : deliveryDays > 0 
+              ? `⏳ Expected delivery: ${deliveryDays} more day(s)\n\n📍 Standard delivery: 5-7 business days\n🚀 Express available on select items` 
+              : '⚠️ Order is delayed. Please contact support.'}\n\n${orderAge > 7 && latestOrder.status !== 'delivered' ? '🆘 Order delayed? We apologize!\n📞 Contact: support@brohood.com\n📧 We\'ll resolve this ASAP!' : ''}`,
+          orders: [latestOrder],
+          suggestions: ['Contact support', 'Track order', 'Return policy']
+        };
+      }
+
+      if (lowerQuery.includes('return') || lowerQuery.includes('exchange')) {
+        if (latestOrder.status === 'delivered' && orderAge <= 7) {
+          return {
+            text: `🔄 Return/Exchange Available!\n\nOrder #${latestOrder.order_number}\n✅ Eligible for return (delivered ${orderAge} days ago)\n\n📋 Return Policy:\n• 7-day return window ✅\n• Free return pickup 🚚\n• Full refund or exchange 💰\n\n✅ Conditions:\n• Unused with original tags\n• Original packaging\n• No damage or alterations\n\n📞 To initiate return:\nContact: support@brohood.com\nPhone: [Your number]\n\n💡 Refund processed in 5-7 business days after pickup.`,
+            orders: [latestOrder],
+            suggestions: ['Contact support', 'Refund policy', 'Exchange policy']
+          };
+        } else if (orderAge > 7) {
+          return {
+            text: `⚠️ Return Window Closed\n\nOrder #${latestOrder.order_number}\n❌ Delivered ${orderAge} days ago\n\n📋 Our Policy:\n• 7-day return window (expired)\n• Returns accepted within 7 days of delivery\n\n🆘 Special circumstances?\n• Defective product?\n• Wrong item received?\n\nContact us: support@brohood.com\nWe'll do our best to help!`,
+            orders: [latestOrder],
+            suggestions: ['Contact support', 'Quality issue', 'Browse products']
+          };
+        } else {
+          return {
+            text: `📦 Order Status: ${latestOrder.status}\n\nOrder #${latestOrder.order_number}\n\n⏳ Return/exchange available after delivery!\n\n📋 What you can do:\n• Wait for delivery\n• Cancel if not shipped\n• Contact support for changes\n\n🔄 After delivery:\n• 7-day return window\n• Free pickup\n• Full refund or exchange`,
+            orders: [latestOrder],
+            suggestions: ['Cancel order', 'Contact support', 'Track order']
+          };
+        }
+      }
+
+      if (lowerQuery.includes('refund') || lowerQuery.includes('money back')) {
+        return {
+          text: `💰 Refund Policy:\n\n✅ Full Refund Available:\n• Cancelled orders (before shipping)\n• Returned items (within 7 days)\n• Payment failures\n• Defective products\n\n⏱️ Refund Timeline:\n• Initiated: Within 24 hours\n• Processed: 5-7 business days\n• Credited to: Original payment method\n\n💳 Refund Methods:\n• UPI: 1-3 days\n• Cards: 5-7 days\n• Net Banking: 5-7 days\n• COD: Bank transfer (provide details)\n\n📞 Track refund status:\nContact: support@brohood.com`,
+          suggestions: ['Check order status', 'Contact support', 'Return policy']
+        };
+      }
+
+      if (lowerQuery.includes('payment') || lowerQuery.includes('paid') || lowerQuery.includes('transaction')) {
+        return {
+          text: `💳 Payment Information:\n\nYour latest order #${latestOrder.order_number}:\n\n💰 Amount: ₹${latestOrder.total_amount}\n📊 Payment Status: ${latestOrder.payment_status?.toUpperCase() || 'PENDING'}\n💳 Method: ${latestOrder.payment_method || 'Not specified'}\n${latestOrder.razorpay_payment_id ? `🔑 Payment ID: ${latestOrder.razorpay_payment_id}` : ''}\n\n${latestOrder.payment_status === 'paid' 
+            ? '✅ Payment successful!' 
+            : latestOrder.payment_status === 'failed' 
+              ? '❌ Payment failed. Please retry or contact support.' 
+              : '⏳ Payment pending. Please complete payment.'}\n\n🆘 Payment issues?\nContact: support@brohood.com\nProvide Order ID for quick resolution.`,
+          orders: [latestOrder],
+          suggestions: ['Contact support', 'Retry payment', 'Refund policy']
+        };
+      }
+
+      // Default: Show all orders with full details
+      const orderDetails = orders.map((o, idx) => {
+        const daysAgo = Math.floor((Date.now() - new Date(o.created_at).getTime()) / (1000 * 60 * 60 * 24));
+        return `\n${idx + 1}. Order #${o.order_number}\n   📊 Status: ${o.status.toUpperCase()}\n   💰 Amount: ₹${o.total_amount}\n   📦 Items: ${o.items?.length || 0}\n   📅 Placed: ${daysAgo} day(s) ago\n   💳 Payment: ${o.payment_status?.toUpperCase() || 'N/A'}`;
+      }).join('\n');
+
       return {
-        text: "📦 Having trouble fetching your orders. Please visit your Account page or contact support!",
-        suggestions: ['Go to account', 'Contact support']
+        text: `📦 Your Recent Orders (${orders.length}):\n${orderDetails}\n\n💡 I can help you with:\n• Track delivery status\n• Cancel orders\n• Returns & exchanges\n• Refund status\n• Payment issues\n\nWhat would you like to know?`,
+        suggestions: ['Track latest order', 'Return policy', 'Cancel order', 'Contact support']
+      };
+    } catch (error) {
+      console.error('Order query error:', error);
+      return {
+        text: "📦 Having trouble fetching your orders.\n\n👉 Please try:\n• Visit Account → My Orders\n• Refresh the page\n• Contact support\n\n📞 Support: support@brohood.com",
+        suggestions: ['Go to account', 'Contact support', 'Try again']
       };
     }
   };
@@ -440,18 +566,18 @@ Keep responses 2-3 paragraphs, friendly, sales-focused.`;
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-lg bg-black hover:bg-gray-800 z-50"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 sm:h-14 sm:w-14 rounded-full shadow-lg bg-black hover:bg-gray-800 z-50"
           size="icon"
         >
-          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+          <MessageCircle className="h-6 w-6 sm:h-6 sm:w-6" />
         </Button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-[380px] md:w-[420px] h-[calc(100vh-2rem)] sm:h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-gray-200">
+        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 w-full sm:w-[380px] md:w-[420px] h-[100vh] sm:h-[600px] sm:rounded-2xl shadow-2xl flex flex-col z-50 border-0 sm:border border-gray-200 bg-white">
           {/* Header */}
-          <div className="bg-black text-white p-3 sm:p-4 rounded-t-2xl flex items-center justify-between">
+          <div className="bg-black text-white p-3 sm:p-4 sm:rounded-t-2xl flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/20 flex items-center justify-center">
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />

@@ -141,16 +141,16 @@ const Products = () => {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-8 gap-3 sm:gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-black">All Products</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-black">All Products</h1>
+            <p className="text-sm sm:text-base text-gray-600">
               {loading ? "Loading..." : `Showing ${products.length} of ${total} products`}
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[140px] sm:w-[180px] text-xs sm:text-sm h-9 sm:h-10">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -163,32 +163,57 @@ const Products = () => {
             </Select>
             <Button
               variant="outline"
-              className="lg:hidden"
+              className="lg:hidden h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
               onClick={() => setFiltersOpen(!filtersOpen)}
             >
-              <Filter className="h-4 w-4 mr-2" />
+              <Filter className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
               Filters
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <aside className={`lg:w-64 space-y-6 ${filtersOpen ? "block" : "hidden lg:block"}`}>
-            <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold flex items-center gap-2 text-black">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
+          {/* Filters Sidebar - Mobile Overlay */}
+          {filtersOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+              onClick={() => setFiltersOpen(false)}
+            />
+          )}
+          
+          <aside className={`
+            ${filtersOpen ? 'fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] transform translate-x-0' : 'fixed -translate-x-full lg:translate-x-0'}
+            lg:relative lg:w-64 
+            transition-transform duration-300 ease-in-out
+            lg:block
+            bg-white lg:bg-transparent
+            overflow-y-auto
+            shadow-xl lg:shadow-none
+          `}>
+            <div className="bg-white p-4 sm:p-6 rounded-none lg:rounded-lg border-0 lg:border border-gray-200 space-y-4 sm:space-y-6 h-full lg:h-auto">
+              <div className="flex items-center justify-between sticky top-0 bg-white pb-3 lg:pb-0 lg:static border-b lg:border-0 -mx-4 px-4 lg:mx-0 lg:px-0 mb-4 lg:mb-0">
+                <h3 className="font-semibold flex items-center gap-2 text-black text-base sm:text-lg">
                   <SlidersHorizontal className="h-4 w-4" />
                   Filters
                 </h3>
-                <Button variant="link" size="sm" className="text-black hover:text-gray-600" onClick={clearAllFilters}>
-                  Clear All
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="link" size="sm" className="text-black hover:text-gray-600 text-xs sm:text-sm" onClick={clearAllFilters}>
+                    Clear All
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="lg:hidden"
+                    onClick={() => setFiltersOpen(false)}
+                  >
+                    ✕
+                  </Button>
+                </div>
               </div>
 
               {/* Category Filter */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-black">Category</h4>
+              <div className="space-y-2 sm:space-y-3">
+                <h4 className="font-medium text-black text-sm sm:text-base">Category</h4>
                 <div className="space-y-2">
                   {categoriesLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
@@ -214,8 +239,8 @@ const Products = () => {
               </div>
 
               {/* Price Range */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-black">Price Range</h4>
+              <div className="space-y-2 sm:space-y-3">
+                <h4 className="font-medium text-black text-sm sm:text-base">Price Range</h4>
                 <Slider value={priceRange} onValueChange={setPriceRange} max={5000} step={100} className="mt-2" />
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>₹{priceRange[0]}</span>
@@ -224,8 +249,8 @@ const Products = () => {
               </div>
 
               {/* Size Filter */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-black">Size</h4>
+              <div className="space-y-2 sm:space-y-3">
+                <h4 className="font-medium text-black text-sm sm:text-base">Size</h4>
                 <div className="grid grid-cols-4 gap-2">
                   {["S", "M", "L", "XL", "XXL"].map((size) => (
                     <Button
@@ -242,8 +267,8 @@ const Products = () => {
               </div>
 
               {/* Discount Filter */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-black">Discount</h4>
+              <div className="space-y-2 sm:space-y-3">
+                <h4 className="font-medium text-black text-sm sm:text-base">Discount</h4>
                 <div className="space-y-2">
                   {["10% and above", "20% and above", "30% and above", "50% and above"].map((discount) => (
                     <div key={discount} className="flex items-center space-x-2">
@@ -255,8 +280,8 @@ const Products = () => {
               </div>
 
               {/* Rating Filter */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-black">Customer Rating</h4>
+              <div className="space-y-2 sm:space-y-3">
+                <h4 className="font-medium text-black text-sm sm:text-base">Customer Rating</h4>
                 <div className="space-y-2">
                   {["4★ & above", "3★ & above", "2★ & above"].map((rating) => (
                     <div key={rating} className="flex items-center space-x-2">

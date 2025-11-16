@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,42 +6,69 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/context/CartContext";
+import { Loader2 } from "lucide-react";
 
+// ✅ Always load these (critical for initial render)
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
-import { AIChatbot } from "./components/AIChatbot";
 import Home from "./pages/Home";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import Account from "./pages/AccountNew";
-import Wishlist from "./pages/Wishlist";
-import Login from "./pages/Login";
-import OrderSuccess from "./pages/OrderSuccess";
-import TestRazorpay from "./pages/TestRazorpay";
-import Orders from "./pages/Orders";
 
-import { WorkingAdminDashboard } from "./pages/admin/WorkingAdminDashboard";
-import { AdminDashboard } from "./pages/admin/AdminDashboard";
-import { AdminRedirect } from "./pages/admin/AdminRedirect";
-import { AdminProducts } from "./pages/admin/Products";
-import { AdminCategories } from "./pages/admin/Categories";
-import { AdminLogin } from "./components/auth/AdminLogin";
-import { TestAdmin } from "./pages/admin/TestAdmin";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminCustomers from "./pages/admin/AdminCustomers";
-import NotFound from "./pages/NotFound";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-import FAQ from "./pages/FAQ";
-import Shipping from "./pages/Shipping";
-import Returns from "./pages/Returns";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import SizeGuide from "./pages/SizeGuide";
+// ✅ Lazy load everything else (code splitting)
+const AIChatbot = lazy(() => import("./components/AIChatbot").then(m => ({ default: m.AIChatbot })));
+const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Account = lazy(() => import("./pages/AccountNew"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Login = lazy(() => import("./pages/Login"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const Orders = lazy(() => import("./pages/Orders"));
 
-const queryClient = new QueryClient();
+// Admin pages (rarely used, definitely lazy load)
+const AdminLogin = lazy(() => import("./components/auth/AdminLogin").then(m => ({ default: m.AdminLogin })));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard").then(m => ({ default: m.AdminDashboard })));
+const AdminRedirect = lazy(() => import("./pages/admin/AdminRedirect").then(m => ({ default: m.AdminRedirect })));
+const AdminProducts = lazy(() => import("./pages/admin/Products").then(m => ({ default: m.AdminProducts })));
+const AdminCategories = lazy(() => import("./pages/admin/Categories").then(m => ({ default: m.AdminCategories })));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
+const WorkingAdminDashboard = lazy(() => import("./pages/admin/WorkingAdminDashboard").then(m => ({ default: m.WorkingAdminDashboard })));
+
+// Info pages (rarely visited, lazy load)
+const Contact = lazy(() => import("./pages/Contact"));
+const About = lazy(() => import("./pages/About"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Shipping = lazy(() => import("./pages/Shipping"));
+const Returns = lazy(() => import("./pages/Returns"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const SizeGuide = lazy(() => import("./pages/SizeGuide"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const TestRazorpay = lazy(() => import("./pages/TestRazorpay"));
+const TestAdmin = lazy(() => import("./pages/admin/TestAdmin").then(m => ({ default: m.TestAdmin })));
+
+// ✅ Optimized QueryClient with better defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+// ✅ Loading component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <Loader2 className="h-10 w-10 animate-spin text-black mx-auto mb-3" />
+      <p className="text-sm text-gray-600">Loading...</p>
+    </div>
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -49,7 +77,8 @@ const App = () => (
       <Sonner />
 
       <BrowserRouter future={{ v7_relativeSplatPath: true }}>
-        <Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
           {/* ========================= ADMIN ROUTES ========================= */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/test" element={<TestAdmin />} />
@@ -218,7 +247,8 @@ const App = () => (
 
           {/* ========================= FALLBACK ========================= */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
