@@ -27,6 +27,9 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [sizeStock, setSizeStock] = useState<Record<string, number>>({});
   const [mainImage, setMainImage] = useState("");
   const [addingToCart, setAddingToCart] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
@@ -64,6 +67,23 @@ const ProductDetail = () => {
           "/placeholder-product.jpg"
       );
 
+      // Fetch stock for each size
+      if (productData.variants && productData.variants.length > 0) {
+        const stockMap: Record<string, number> = {};
+        for (const variant of productData.variants) {
+          if (variant.size) {
+            // Get inventory for this variant
+            const inventory = productData.inventory?.find((inv: any) => inv.variant_id === variant.id);
+            if (inventory) {
+              stockMap[variant.size] = inventory.quantity - (inventory.reserved_quantity || 0);
+            } else {
+              stockMap[variant.size] = 0;
+            }
+          }
+        }
+        setSizeStock(stockMap);
+      }
+
       if (productData.category_id) {
         const { data: related } = await supabase
           .from("products")
@@ -95,6 +115,13 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!product) return;
+    
+    // Check if size is required and selected
+    if (product.variants && product.variants.length > 0 && !selectedSize) {
+      alert("Please select a size");
+      return;
+    }
+    
     setAddingToCart(true);
     addToCart({
       id: product.id,
@@ -102,19 +129,28 @@ const ProductDetail = () => {
       price: product.price,
       image: product.images?.[0]?.image_url || "/placeholder-product.jpg",
       quantity: quantity,
+      size: selectedSize || undefined,
     });
     setAddingToCart(false);
-    alert("Added to cart!");
+    alert(`Added to cart${selectedSize ? ` (Size: ${selectedSize})` : ''}!`);
   };
 
   const handleBuyNow = () => {
     if (!product) return;
+    
+    // Check if size is required and selected
+    if (product.variants && product.variants.length > 0 && !selectedSize) {
+      alert("Please select a size");
+      return;
+    }
+    
     addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
       image: product.images?.[0]?.image_url || "/placeholder-product.jpg",
       quantity: quantity,
+      size: selectedSize || undefined,
     });
     navigate("/checkout");
   };
@@ -225,6 +261,76 @@ const ProductDetail = () => {
               </span>
             )}
           </div>
+
+          {/* Size Selection */}
+          {product.variants && product.variants.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-sm sm:text-base">Select Size:</h3>
+                <Link to="/size-guide" className="text-xs sm:text-sm text-blue-600 hover:underline">
+                  Size Guide
+                </Link>
+              </div>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                {Array.from(new Set(product.variants.map(v => v.size).filter(Boolean))).map((size) => {
+                  const stock = sizeStock[size as string] || 0;
+                  const isOutOfStock = stock === 0;
+                  const isLowStock = stock > 0 && stock <= 10;
+                  
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => {
+                        if (!isOutOfStock) {
+                          setSelectedSize(size as string);
+                          const variant = product.variants?.find(v => v.size === size);
+                          setSelectedVariant(variant);
+                        }
+                      }}
+                      disabled={isOutOfStock}
+                      className={`
+                        relative px-4 sm:px-6 py-2 sm:py-3 border-2 rounded-lg font-medium text-sm sm:text-base
+                        transition-all duration-200
+                        ${isOutOfStock 
+                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed line-through'
+                          : selectedSize === size
+                            ? 'border-black bg-black text-white'
+                            : 'border-gray-300 hover:border-black'
+                        }
+                      `}
+                    >
+                      {size}
+                      {isLowStock && !isOutOfStock && (
+                        <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedSize && (
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-green-600 font-medium">
+                    ✓ Size {selectedSize} selected
+                  </p>
+                  {sizeStock[selectedSize] <= 10 && sizeStock[selectedSize] > 0 && (
+                    <p className="text-xs sm:text-sm text-red-600 font-semibold animate-pulse">
+                      ⚡ Hurry up! Only {sizeStock[selectedSize]} item{sizeStock[selectedSize] > 1 ? 's' : ''} left in stock!
+                    </p>
+                  )}
+                  {sizeStock[selectedSize] > 10 && (
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      ✓ In stock
+                    </p>
+                  )}
+                </div>
+              )}
+              {!selectedSize && (
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Please select a size to continue
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3 sm:gap-4 pt-2 sm:pt-4">

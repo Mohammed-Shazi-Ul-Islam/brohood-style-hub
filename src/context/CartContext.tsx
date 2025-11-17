@@ -7,15 +7,18 @@ interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  size?: string; // ✅ Added size support
 }
 
 interface CartContextValue {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
+  removeFromCart: (id: string, size?: string) => void;
   clearCart: () => void;
   cartCount: number;
 }
+
+export type { CartItem };
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
@@ -39,14 +42,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // ✅ Merge logic
+  // ✅ Merge logic with size support
   const addToCart = (newItem: CartItem) => {
     setCart((prev) => {
-      const existing = prev.find((p) => p.id === newItem.id);
+      // Match by both id AND size (if size exists)
+      const existing = prev.find((p) => 
+        p.id === newItem.id && p.size === newItem.size
+      );
       let updated: CartItem[];
       if (existing) {
         updated = prev.map((p) =>
-          p.id === newItem.id
+          p.id === newItem.id && p.size === newItem.size
             ? { ...p, quantity: p.quantity + newItem.quantity }
             : p
         );
@@ -58,8 +64,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeFromCart = (id: string) => {
-    const updated = cart.filter((item) => item.id !== id);
+  const removeFromCart = (id: string, size?: string) => {
+    const updated = cart.filter((item) => 
+      !(item.id === id && (size === undefined || item.size === size))
+    );
     setCart(updated);
     localStorage.setItem("cart", JSON.stringify(updated));
   };
