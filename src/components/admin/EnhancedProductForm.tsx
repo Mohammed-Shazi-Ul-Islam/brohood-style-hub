@@ -35,7 +35,7 @@ type ProductFormData = z.infer<typeof productSchema>;
 
 interface EnhancedProductFormProps {
   product?: ProductWithDetails;
-  onSubmit: (data: ProductInsert | ProductUpdate, images?: File[], stockQty?: number) => Promise<boolean>;
+  onSubmit: (data: ProductInsert | ProductUpdate, images?: File[], sizeStock?: Record<string, number>) => Promise<boolean>;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -46,7 +46,13 @@ export function EnhancedProductForm({ product, onSubmit, onCancel, loading = fal
   const [activeTab, setActiveTab] = useState('basic');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [stockQuantity, setStockQuantity] = useState<number>(0);
+  const [sizeStock, setSizeStock] = useState<Record<string, number>>({
+    S: 0,
+    M: 0,
+    L: 0,
+    XL: 0,
+    XXL: 0
+  });
 
   const { categories, loading: categoriesLoading } = useAdminCategories();
 
@@ -111,8 +117,8 @@ export function EnhancedProductForm({ product, onSubmit, onCancel, loading = fal
     try {
       setError('');
       
-      // Pass images and stock quantity to the parent handler
-      const success = await onSubmit(data, imageFiles, stockQuantity);
+      // Pass images and size stock to the parent handler
+      const success = await onSubmit(data, imageFiles, sizeStock);
       if (!success) {
         setError('Failed to save product. Please try again.');
         return;
@@ -469,88 +475,121 @@ export function EnhancedProductForm({ product, onSubmit, onCancel, loading = fal
               </div>
             </div>
 
-            {/* Stock Management */}
+            {/* Stock Management - Size-wise */}
             <div className="border-t pt-4">
               <Label className="text-base font-semibold flex items-center gap-2">
                 <Package className="h-4 w-4" />
-                Stock Management
+                Size-wise Stock Management
               </Label>
+              
               <div className="mt-3 space-y-4">
-                {/* Initial Stock Quantity */}
-                <div>
-                  <Label htmlFor="stock_quantity">
-                    Initial Stock Quantity
-                  </Label>
-                  <Input
-                    id="stock_quantity"
-                    type="number"
-                    min="0"
-                    value={stockQuantity}
-                    onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
-                    placeholder="0"
-                    className="mt-1.5"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Set the initial stock quantity for this product
-                  </p>
+                {/* Size Stock Inputs */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                  {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                    <div key={size} className="space-y-2">
+                      <Label htmlFor={`stock-${size}`} className="text-sm font-medium">
+                        Size {size}
+                      </Label>
+                      <Input
+                        id={`stock-${size}`}
+                        type="number"
+                        min="0"
+                        value={sizeStock[size]}
+                        onChange={(e) => setSizeStock({
+                          ...sizeStock,
+                          [size]: parseInt(e.target.value) || 0
+                        })}
+                        placeholder="0"
+                        className="text-center"
+                      />
+                      <div className="text-center">
+                        {sizeStock[size] === 0 ? (
+                          <Badge variant="destructive" className="text-xs">Out</Badge>
+                        ) : sizeStock[size] <= 10 ? (
+                          <Badge className="bg-orange-500 text-xs">Low</Badge>
+                        ) : (
+                          <Badge className="bg-green-500 text-xs">In Stock</Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
-                {/* Stock Status Indicator */}
-                <div className="p-4 border rounded-lg bg-gray-50">
+                {/* Total Stock Summary */}
+                <div className="p-3 sm:p-4 border rounded-lg bg-gray-50">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Stock Status</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900">Total Stock</p>
                       <p className="text-xs text-gray-500 mt-0.5">
-                        Based on quantity entered
+                        Across all sizes
                       </p>
                     </div>
-                    <div>
-                      {stockQuantity === 0 ? (
-                        <Badge variant="destructive">Out of Stock</Badge>
-                      ) : stockQuantity < 10 ? (
-                        <Badge className="bg-orange-500">Low Stock</Badge>
-                      ) : (
-                        <Badge className="bg-green-500">In Stock</Badge>
-                      )}
+                    <div className="text-right">
+                      <p className="text-xl sm:text-2xl font-bold text-gray-900">
+                        {Object.values(sizeStock).reduce((sum, qty) => sum + qty, 0)}
+                      </p>
+                      <p className="text-xs text-gray-500">units</p>
                     </div>
                   </div>
-                  <div className="mt-3">
-                    <div className="flex justify-between text-xs text-gray-600 mb-1">
-                      <span>Stock Level</span>
-                      <span>{stockQuantity} units</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all ${
-                          stockQuantity === 0
-                            ? 'bg-red-500 w-0'
-                            : stockQuantity < 10
-                            ? 'bg-orange-500'
-                            : 'bg-green-500'
-                        }`}
-                        style={{
-                          width: stockQuantity === 0 ? '0%' : `${Math.min((stockQuantity / 50) * 100, 100)}%`
-                        }}
-                      />
+                  
+                  {/* Size Breakdown */}
+                  <div className="mt-3 pt-3 border-t">
+                    <div className="grid grid-cols-5 gap-1 sm:gap-2 text-center text-xs">
+                      {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                        <div key={size}>
+                          <p className="font-medium text-gray-600">{size}</p>
+                          <p className={`font-bold ${
+                            sizeStock[size] === 0 ? 'text-red-600' :
+                            sizeStock[size] <= 10 ? 'text-orange-600' :
+                            'text-green-600'
+                          }`}>
+                            {sizeStock[size]}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
+                </div>
+
+                {/* Stock Guidelines */}
+                <div className="p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-xs sm:text-sm font-semibold text-blue-900 mb-2">📋 Stock Guidelines:</p>
+                  <ul className="text-xs text-blue-800 space-y-1">
+                    <li>• <strong>Popular sizes (M, L):</strong> Recommended 30-50 units</li>
+                    <li>• <strong>Regular sizes (S, XL):</strong> Recommended 20-30 units</li>
+                    <li>• <strong>Less common (XXL):</strong> Recommended 10-20 units</li>
+                    <li>• <strong>Stock ≤ 10:</strong> Shows "Hurry up!" warning to customers</li>
+                    <li>• <strong>Stock = 0:</strong> Size becomes unavailable for purchase</li>
+                  </ul>
                 </div>
 
                 {/* Low Stock Warning */}
-                {stockQuantity > 0 && stockQuantity < 10 && (
+                {Object.entries(sizeStock).some(([_, qty]) => qty > 0 && qty <= 10) && (
                   <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                    <p className="text-sm text-orange-800">
-                      ⚠️ <strong>Low Stock Warning:</strong> Consider adding more inventory to avoid stockouts.
+                    <p className="text-xs sm:text-sm text-orange-800">
+                      ⚠️ <strong>Low Stock Alert:</strong> {
+                        Object.entries(sizeStock)
+                          .filter(([_, qty]) => qty > 0 && qty <= 10)
+                          .map(([size]) => size)
+                          .join(', ')
+                      } {Object.entries(sizeStock).filter(([_, qty]) => qty > 0 && qty <= 10).length === 1 ? 'has' : 'have'} low stock
                     </p>
                   </div>
                 )}
 
-                {/* Variants Note */}
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Note:</strong> For products with variants (sizes, colors), you can manage individual variant stock after creating the product.
-                  </p>
-                </div>
+                {/* Out of Stock Warning */}
+                {Object.entries(sizeStock).some(([_, qty]) => qty === 0) && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-xs sm:text-sm text-red-800">
+                      ❌ <strong>Out of Stock:</strong> {
+                        Object.entries(sizeStock)
+                          .filter(([_, qty]) => qty === 0)
+                          .map(([size]) => size)
+                          .join(', ')
+                      } {Object.entries(sizeStock).filter(([_, qty]) => qty === 0).length === 1 ? 'is' : 'are'} out of stock
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -41,7 +41,7 @@ const Cart = () => {
           <div className="lg:col-span-2 space-y-3 sm:space-y-4">
             {cart.map((item) => (
               <div
-                key={item.id}
+                key={`${item.id}-${item.size || 'no-size'}`}
                 className="bg-card rounded-lg border border-border p-3 sm:p-4 md:p-6"
               >
                 <div className="flex gap-3 sm:gap-4">
@@ -54,12 +54,17 @@ const Cart = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between gap-2 sm:gap-4 mb-2">
-                      <h3 className="font-semibold text-sm sm:text-base lg:text-lg truncate">{item.name}</h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm sm:text-base lg:text-lg truncate">{item.name}</h3>
+                        {item.size && (
+                          <p className="text-xs text-muted-foreground mt-0.5">Size: {item.size}</p>
+                        )}
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.id, item.size)}
                       >
                         <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
                       </Button>

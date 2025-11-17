@@ -302,7 +302,7 @@ const Checkout = () => {
           <div className="space-y-6">
             {checkoutItems.map((item) => (
               <div
-                key={item.id}
+                key={`${item.id}-${item.size || 'no-size'}`}
                 className="flex items-center gap-3 sm:gap-6 border-b pb-3 sm:pb-4 last:border-none"
               >
                 <img
@@ -312,7 +312,10 @@ const Checkout = () => {
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-sm sm:text-base truncate">{item.name}</h3>
-                  <p className="text-gray-600 text-xs sm:text-sm">
+                  {item.size && (
+                    <p className="text-xs text-gray-500 mt-0.5">Size: {item.size}</p>
+                  )}
+                  <p className="text-gray-600 text-xs sm:text-sm mt-1">
                     Quantity: {item.quantity || 1}
                   </p>
                   <p className="font-bold mt-1 sm:mt-2 text-sm sm:text-base">

@@ -7,6 +7,7 @@ import { EnhancedProductForm } from '@/components/admin/EnhancedProductForm';
 import { useAdminProducts, useAdminCategories } from '@/hooks/useAdminProducts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -82,7 +83,7 @@ export function AdminProducts() {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const handleCreateProduct = async (data: ProductInsert, images?: File[], stockQty?: number) => {
+  const handleCreateProduct = async (data: ProductInsert, images?: File[], sizeStock?: Record<string, number>) => {
     setActionLoading(true);
     try {
       const newProduct = await createProduct(data);
@@ -92,9 +93,9 @@ export function AdminProducts() {
           await uploadProductImages(newProduct.id, images);
         }
         
-        // Create inventory record if stock quantity provided
-        if (stockQty !== undefined && stockQty > 0) {
-          await createInventoryRecord(newProduct.id, stockQty);
+        // Create variants and inventory for each size
+        if (sizeStock) {
+          await createSizeVariantsAndInventory(newProduct.id, sizeStock);
         }
         
         setSuccessMessage('Product created successfully!');
@@ -153,6 +154,46 @@ export function AdminProducts() {
     }
   };
 
+  const createSizeVariantsAndInventory = async (productId: string, sizeStock: Record<string, number>) => {
+    const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+    
+    for (const size of sizes) {
+      const stock = sizeStock[size] || 0;
+      
+      // Create variant for this size
+      const { data: variant, error: variantError } = await supabase
+        .from('product_variants')
+        .insert({
+          product_id: productId,
+          size: size,
+          sku: `${productId}-${size.toLowerCase()}`,
+          price_adjustment: 0
+        })
+        .select()
+        .single();
+
+      if (variantError) {
+        console.error(`Error creating variant for size ${size}:`, variantError);
+        continue;
+      }
+
+      // Create inventory record for this variant
+      const { error: inventoryError } = await supabase
+        .from('inventory')
+        .insert({
+          product_id: productId,
+          variant_id: variant.id,
+          quantity: stock,
+          reserved_quantity: 0,
+          low_stock_threshold: 10
+        });
+
+      if (inventoryError) {
+        console.error(`Error creating inventory for size ${size}:`, inventoryError);
+      }
+    }
+  };
+
   const createInventoryRecord = async (productId: string, quantity: number) => {
     const { error } = await supabase
       .from('inventory')
@@ -170,7 +211,7 @@ export function AdminProducts() {
     }
   };
 
-  const handleUpdateProduct = async (data: ProductUpdate, images?: File[], stockQty?: number) => {
+  const handleUpdateProduct = async (data: ProductUpdate, images?: File[], sizeStock?: Record<string, number>) => {
     if (!editingProduct) return false;
     
     setActionLoading(true);
@@ -182,9 +223,9 @@ export function AdminProducts() {
           await uploadProductImages(editingProduct.id, images);
         }
         
-        // Update inventory if stock quantity provided
-        if (stockQty !== undefined) {
-          await updateInventoryRecord(editingProduct.id, stockQty);
+        // Update size stock if provided
+        if (sizeStock) {
+          await updateSizeInventory(editingProduct.id, sizeStock);
         }
         
         setSuccessMessage('Product updated successfully!');
@@ -195,6 +236,65 @@ export function AdminProducts() {
       return success;
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const updateSizeInventory = async (productId: string, sizeStock: Record<string, number>) => {
+    const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+    
+    for (const size of sizes) {
+      const stock = sizeStock[size] || 0;
+      
+      // Find existing variant for this size
+      const { data: variant } = await supabase
+        .from('product_variants')
+        .select('id')
+        .eq('product_id', productId)
+        .eq('size', size)
+        .maybeSingle();
+
+      if (variant) {
+        // Update existing inventory
+        const { error } = await supabase
+          .from('inventory')
+          .update({ quantity: stock })
+          .eq('variant_id', variant.id);
+
+        if (error) {
+          console.error(`Error updating inventory for size ${size}:`, error);
+        }
+      } else {
+        // Create new variant and inventory
+        const { data: newVariant, error: variantError } = await supabase
+          .from('product_variants')
+          .insert({
+            product_id: productId,
+            size: size,
+            sku: `${productId}-${size.toLowerCase()}`,
+            price_adjustment: 0
+          })
+          .select()
+          .single();
+
+        if (variantError) {
+          console.error(`Error creating variant for size ${size}:`, variantError);
+          continue;
+        }
+
+        const { error: inventoryError } = await supabase
+          .from('inventory')
+          .insert({
+            product_id: productId,
+            variant_id: newVariant.id,
+            quantity: stock,
+            reserved_quantity: 0,
+            low_stock_threshold: 10
+          });
+
+        if (inventoryError) {
+          console.error(`Error creating inventory for size ${size}:`, inventoryError);
+        }
+      }
     }
   };
 
